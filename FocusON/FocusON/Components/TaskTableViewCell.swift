@@ -18,7 +18,7 @@ class TaskTableViewCell: UITableViewCell {
     @IBOutlet weak var taskLabel: UILabel!
     @IBOutlet weak var mainView: UIView!
     
-    @IBAction func checkmarkBtnPressed(_ sender: Any) {
+    @IBAction func checkmarkBtnPressed(_ sender: Any?) {
         markCompleted(!checkmarkButton.isSelected)
         delegate?.taskCell( self, completionChanged: checkmarkButton.isSelected)
     }

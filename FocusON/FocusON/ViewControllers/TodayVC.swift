@@ -25,6 +25,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     var dataSourceToPass = [Task]()
     var lastDeletedTask: Task?
     var lastDeletedIndexPath: IndexPath!
+    var mindexPath: IndexPath!
     
     //constants
     let notifications = Notifications()
@@ -32,10 +33,14 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        initView()
         configureView()
         print("context name: \(dataController.logs(from: nil, to: nil)) as event")
     }
   
+    func initView() {
+    
+    }
     
     func configureView() {
         tableView.delegate = self
@@ -129,19 +134,18 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
             if tasks.count < 3 || goals.count < 1 {
                 cell.addBtn.isHidden = false
             }
-            for task in tasks {
-                if task.completed && tasks.count == 3 {
-                    goals.first?.completed = true
-                }
-            }
             return cell
         case 1:
+            
             let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: indexPath) as! TaskTableViewCell
             let task = taskDataSource(indexPath: indexPath)
             cell.setCaption(task?.caption)
             cell.delegate = self
-            cell.contentView.backgroundColor = UIColor.black
+            cell.contentView.backgroundColor = Colors.primaryColor
+            cell.mainView.backgroundColor = Colors.secondaryColor
+            cell.taskLabel.textColor =  Colors.primaryColor
             cell.mainView.insertShadow()
+            mindexPath = indexPath
             return cell
         case 2:
             let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: indexPath) as! TaskTableViewCell
@@ -169,9 +173,9 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch section {
         case 1:
-            return 30
+            return 40
         case 2:
-            return 30
+            return 40
         default:
             return 0
         }
@@ -181,14 +185,14 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         return nil
     }
     
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        switch indexPath.section {
-        case 0:
-            return false
-        default:
-            return true
-        }
-    }
+//    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+//        switch indexPath.section {
+//        case 0:
+//            return false
+//        default:
+//            return true
+//        }
+//    }
     
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -218,7 +222,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         
         goals.removeAll()
         
-        let taks = Task.init(caption: "beach volley!!")
+        let taks = Task.init(caption: "play beach volley with your friends!!")
         taks.priority = .goal
         goals.append(taks)
         
@@ -372,16 +376,29 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     
     func showAlert(type: Type) {
         let alert = UIAlertController(title: nil, message: "ah, no biggie, you’ll get it next time!", preferredStyle: .alert)
-        
-        if type == .goal {
+        var completedTasks = [Task]()
+        for temp in tasks {
+            if temp.completed {
+                completedTasks.append(temp)
+            }
+        }
+        if tasks.count == completedTasks.count{
             alert.message = "Congrats on achieving your goal!"
-        } else if type == .task {
-            alert.message = "Great job on making progress!"
+            let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: mindexPath) as! TaskTableViewCell
+            cell.self.checkmarkBtnPressed(nil)
+        } else {
+            if type == .goal {
+                alert.message = "Congrats on achieving your goal!"
+            } else if type == .task {
+                alert.message = "Great job on making progress!"
+            }
         }
         
         self.present(alert, animated: true, completion: nil)
         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in alert.dismiss(animated: true, completion: nil)} )
     }
+    
+    
 }
 
 extension TodayVC: HistoryVCDelegate {
