@@ -11,19 +11,20 @@ import SwiftCharts
 import CoreData
 
 
-
-
 class ProgressVC: UIViewController {
 
     @IBOutlet weak var timeSegment: UISegmentedControl!
     @IBOutlet weak var chartView: UIView!
     
     var chart: Chart!
+    var dataBase: [tableStruct]!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         chartView.insertShadow()
         test()
+        let history = HistoryVC()
+        dataBase = history.tableArray
 
         // Do any additional setup after loading the view.
     }

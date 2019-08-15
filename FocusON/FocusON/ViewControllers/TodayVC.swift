@@ -376,6 +376,8 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     
     func showAlert(type: Type) {
         let alert = UIAlertController(title: nil, message: "ah, no biggie, you’ll get it next time!", preferredStyle: .alert)
+        let cell2 = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! TaskTableViewCell
+        cell2.checkmarkButton.isSelected = false
         var completedTasks = [Task]()
         for temp in tasks {
             if temp.completed {
@@ -386,6 +388,10 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
             alert.message = "Congrats on achieving your goal!"
             let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: mindexPath) as! TaskTableViewCell
             cell.self.checkmarkBtnPressed(nil)
+            
+            let cell2 = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! TaskTableViewCell
+            cell2.checkmarkButton.isSelected = true
+
         } else {
             if type == .goal {
                 alert.message = "Congrats on achieving your goal!"

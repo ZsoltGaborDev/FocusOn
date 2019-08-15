@@ -9,43 +9,48 @@
 import UIKit
 import CoreData
 
+
+struct tableStruct {
+    var isOpened = Bool()
+    var event = Event()
+    var events = [Event]()
+}
+
 protocol HistoryVCDelegate {
     func update(events: [Event])
 }
 
 class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    
     @IBOutlet weak var viewTitle: UILabel!
     @IBOutlet weak var tableView: UITableView!
     
     //variables
     var delegate: HistoryVCDelegate!
-    var events = [Event]()
+    var totalEvents = [Event]()
     var date = Date()
     var eventsOfToday = [Event]()
+    var event = Event()
     
     let dataController = DataController()
-    
-    
-    
+    var tableArray = [tableStruct]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
-        events = dataController.fecthEvent()
+        totalEvents = dataController.fecthEvent()
         prepareEventsOfToday()
-        print("there are \(events.count) events in History")
+        print("there are \(totalEvents.count) events in History")
         print("there are \(eventsOfToday.count) events of Today")
+        loadStruct()
         tableView.reloadData()
-        
     }
     
     func prepareEventsOfToday() {
         var counter = 0
-        for event in events {
+        for event in totalEvents {
             let achievedAt =  event.achievedAt
             let formatter = DateFormatter()
             formatter.dateFormat = "dd.MM.yyyy"
@@ -53,93 +58,91 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             let today = formatter.string(from: date)
             if resultDate == today {
                 eventsOfToday.append(event)
-                events.remove(at: counter)
+                totalEvents.remove(at: counter)
             }
             counter += 1
         }
     }
     
+    func loadStruct() {
+        tableArray.removeAll()
+        let date = arrangeEventDates()
+        for i in 0..<date.count {
+            let temp = totalEvents.filter { formatDate(date: $0.achievedAt!) == date[i]}
+            //events = temp.sorted(by: { $0. .compare($1.start) == .orderedDescending })
+            if tableArray.contains(where: { formatDate(date: $0.event.achievedAt!) == date[i]}) {
+                continue
+            } else {
+                print(temp)
+                for j in temp {
+                    if (j.goal != nil) {
+                        self.event = j
+                    }
+                }
+                tableArray.append(tableStruct(isOpened: false, event: event, events: temp))
+            }
+        }
+        print("tableArray count : \(tableArray.count)")
+        print(tableArray)
+    }
+    
+    func arrangeEventDates() -> [String]{
+        var eventoDate = [Date]()
+        for evento in totalEvents {
+            
+            if let date = evento.achievedAt {
+                eventoDate.append(date)
+            }
+        }
+        var date = [String]()
+        for temp in eventoDate {
+            let date2 = formatDate(date: temp)
+            date.append(date2)
+        }
+        return date
+    }
+    
+    func formatDate(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd.MM.yyyy"
+        let resultDate = formatter.string(from: date)
+        return resultDate
+    }
+    
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return tableArray.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-        case 0:
-            return eventsOfToday.count
-        case 1:
-            return events.count
-        default:
-            return 0
+        if tableArray[section].isOpened {
+            return tableArray[section].events.count + 1
+        } else {
+            return 1
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "historyCellID", for: indexPath) as! HistoryTableViewCell
-        switch indexPath.section {
-        case 0:
-            let eventOfToday = eventsOfToday[indexPath.row]
-            let goal = eventOfToday.goal
-            let task = eventOfToday.task
-            let achievedAt =  eventOfToday.achievedAt
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd.MM.yyyy"
-            let resultDate = formatter.string(from: achievedAt!)
-            
-            for load in eventsOfToday {
-                if load.goal != "" {
-                    cell.mainView.backgroundColor = Colors.darkFont
-                    cell.achievedOnLabel.textColor = UIColor.white
-                    cell.achievedOnValue.textColor = UIColor.white
-                    cell.taskLabel.textColor = UIColor.white
-                    cell.taskLabel.text = goal
-                    cell.achievedOnValue.text = resultDate
-                } else if task != "" {
-                    cell.mainView.backgroundColor = UIColor.white
-                    cell.achievedOnLabel.textColor = UIColor.black
-                    cell.achievedOnValue.textColor = UIColor.black
-                    cell.taskLabel.textColor = UIColor.black
-                    cell.taskLabel.text = task
-                    cell.achievedOnValue.text = resultDate
-                }
-            }
-            
-            
+        
+        if indexPath.row == 0 {
+            cell.taskLabel.text = tableArray[indexPath.section].event.goal
+            cell.achievedOnValue.text = formatDate(date: tableArray[indexPath.section].event.achievedAt!)
+            cell.checkmarkButton.isHidden = true
+            cell.mainView.backgroundColor = Colors.primaryColor
+            cell.taskLabel.textColor = Colors.secondaryColor
+            print(event.goal)
             return cell
-        case 1:
-            let event = events[indexPath.row]
-            let goal = event.goal
-            let task = event.task
-            let achievedAt =  event.achievedAt
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd.MM.yyyy"
-            let resultDate = formatter.string(from: achievedAt!)
-            let today = formatter.string(from: date)
-            if resultDate != today {
-                if goal != "" {
-                    cell.mainView.backgroundColor = UIColor.black
-                    cell.achievedOnLabel.textColor = UIColor.white
-                    cell.achievedOnValue.textColor = UIColor.white
-                    cell.taskLabel.textColor = UIColor.white
-                    cell.taskLabel.text = goal
-                } else if task != "" {
-                    cell.mainView.backgroundColor = UIColor.white
-                    cell.achievedOnLabel.textColor = UIColor.black
-                    cell.achievedOnValue.textColor = UIColor.black
-                    cell.taskLabel.textColor = UIColor.black
-                    cell.taskLabel.text = task
-                }
-                cell.achievedOnValue.text = resultDate
-            }
-            
+        } else {
+            cell.taskLabel.text = tableArray[indexPath.section].events[indexPath.row - 1].task
+            cell.dateStackView.isHidden = true
+            cell.mainView.backgroundColor = Colors.secondaryColor
+            cell.taskLabel.textColor = Colors.primaryColor
             return cell
-        default:
-            return UITableViewCell.init()
         }
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    
+
         switch section {
         case 0:
             return "Today"
@@ -161,7 +164,7 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         switch section {
-        case 1:
+        case tableArray.count - 1:
             return getDateOfToday()
         default:
             return nil
@@ -171,6 +174,30 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
         (view as? UITableViewHeaderFooterView)?.textLabel?.textAlignment = .center
     }
-
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableArray[indexPath.section].isOpened {
+            tableArray[indexPath.section].isOpened = false
+            let section = IndexSet.init(integer: indexPath.section)
+            tableView.reloadSections(section, with: .none)
+        } else {
+            tableArray[indexPath.section].isOpened = true
+            let section = IndexSet.init(integer: indexPath.section)
+            tableView.reloadSections(section, with: .none)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        switch section {
+        case 0:
+            return 40
+        case 1:
+            return 40
+        default:
+            return 0
+        }
+    }
+    
+    
 }
 

@@ -15,6 +15,7 @@ class HistoryTableViewCell: UITableViewCell {
     @IBOutlet weak var mainView: UIView!
     @IBOutlet weak var achievedOnLabel: UILabel!
     @IBOutlet weak var achievedOnValue: UILabel!
+    @IBOutlet weak var dateStackView: UIStackView!
     
     var delegate: TaskCellDelegate?
     
