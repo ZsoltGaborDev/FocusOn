@@ -10,14 +10,11 @@ import UIKit
 import UserNotifications
 import CoreData
 
-
-
-class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, TaskCellDelegate, NewTaskTableViewCellDelegate{
+class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, TaskCellDelegate, NewTaskTableViewCellDelegate, HistoryVCDelegate{
     
     @IBOutlet weak var viewTitleLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var progressLabel: UILabel!
-    
     
     //variables
     var tasks = [Task]()
@@ -26,6 +23,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     var lastDeletedTask: Task?
     var lastDeletedIndexPath: IndexPath!
     var mindexPath: IndexPath!
+    var caption = String()
     
     //constants
     let notifications = Notifications()
@@ -33,13 +31,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        initView()
         configureView()
-        print("context name: \(dataController.logs(from: nil, to: nil)) as event")
-    }
-  
-    func initView() {
-    
     }
     
     func configureView() {
@@ -50,29 +42,20 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         updateProgress()
         registerForKeyboardNotification()
         manageLocalNotifications()
-        print("There are \(tasks.count) task to pass")
-        print("There are \(goals.count) goals to pass")
-        
         dataController.createFakeLogsFor(days: 5)
         let logs = dataController.logs(from: nil, to: nil)
         dataController.printDetails(logs: logs)
-        
     }
     
-    
     //MARK: cell delegates
-    
     func taskCell(_ cell: TaskTableViewCell, completionChanged completion: Bool) {
         //identity path for a cell
         if let indexPath = tableView.indexPath(for: cell) {
             //fetch data source for indexPath
-            
             if let task = taskDataSource(indexPath: indexPath) {
-                
                 //update completion state
                 task.completed = completion
                 dataController.log(completedGoal: task)
-                
                 if task.completed {
                     switch task.priority {
                     case .goal:
@@ -83,13 +66,13 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
                         return
                     }
                 } else {
+                    dataController.deleteEvent(goal: task)
                     showAlert(type: .none)
                 }
             }
-            
-            
             manageLocalNotifications()
             updateProgress()
+            
         }
     }
     
@@ -108,7 +91,6 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     }
     
     //MARK: tableview delegates
-    
     func numberOfSections(in tableView: UITableView) -> Int {
         return 3
     }
@@ -185,16 +167,6 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         return nil
     }
     
-//    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-//        switch indexPath.section {
-//        case 0:
-//            return false
-//        default:
-//            return true
-//        }
-//    }
-    
-    
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             self.deleteTask(at: indexPath)
@@ -225,25 +197,20 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         let taks = Task.init(caption: "play beach volley with your friends!!")
         taks.priority = .goal
         goals.append(taks)
-        
     }
     
     func insertTask(_ task: Task?, at indexPath: IndexPath?) {
         if let task = task, let indexPath = indexPath {
             // put the table view in updating mode
             tableView.beginUpdates()
-            
             //add new object to the datasource array
-            
             if goals.count < 1 {
                 goals.insert(task, at: indexPath.row)
             } else {
                 tasks.insert(task, at: indexPath.row)
             }
-            
             //insert nem cell to the table
             tableView.insertRows(at: [indexPath], with: .automatic)
-            
             //finish updating table
             tableView.endUpdates()
             tableView.reloadData()
@@ -254,7 +221,6 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         if let indexPath = indexPath {
             lastDeletedIndexPath = indexPath
             lastDeletedTask = taskDataSource(indexPath: indexPath)
-            
             // put the table view in updating mode
             tableView.beginUpdates()
             //add new object to the datasource array
@@ -263,13 +229,12 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
             } else {
                 tasks.remove( at: indexPath.row)
             }
-            
             //insert nem cell to the table
             tableView.deleteRows(at: [indexPath], with: .automatic)
-            
             //finish updating table
             tableView.endUpdates()
             tableView.reloadData()
+            
         }
     }
     
@@ -282,8 +247,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         }
     }
     
-    func updateProgress() {
-        
+    func updateProgress() -> String {
         //calculate the initial values for task count
         let totalTask = tasks.count
         let completedTask = tasks.filter { (task) -> Bool in
@@ -291,14 +255,9 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
             }.count
         dataSourceToPass = tasks.filter { (task) -> Bool in
             return task.completed == true}
-//        let completedGoal = goals.filter { (task) -> Bool i
-//            return task.completed == true
-//            }.count
         let completed = completedTask
-        
         //calculate a caption variable
         var caption = "What's going on?!"
-        
         //handle range possible scenarios
         if totalTask == 0 { // no task
             caption = "It's lonely here - add some tasks!"
@@ -308,18 +267,26 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         }
         else if completedTask == totalTask {
             caption = "Well done: GOAL completed!"
-            
-//            let completedGoal = goals.filter { (task) -> Bool in
-//                return task.completed == true
-//                }
-//            dataController.log(completedGoal: completedGoal)
         }
         else { //completed tasks less than total tasks
             caption = "\(completed) down \(totalTask - completedTask) to go!"
         }
         
-        //assign teh progress cation text to the label
+        //assign the progress caption text to the label
         progressLabel.text = caption
+        return caption
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if(segue.identifier == "InputVCToDisplayVC"){
+            let displayVC = segue.destination as! HistoryVC
+            displayVC.delegate = self
+        }
+    }
+    
+    func getProgressText() -> String {
+        let captionToPass = updateProgress()
+        return captionToPass
     }
     
     func manageLayoutWithKeyboard() -> UITableView {
@@ -376,43 +343,22 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     
     func showAlert(type: Type) {
         let alert = UIAlertController(title: nil, message: "ah, no biggie, you’ll get it next time!", preferredStyle: .alert)
-        let cell2 = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! TaskTableViewCell
-        cell2.checkmarkButton.isSelected = false
         var completedTasks = [Task]()
         for temp in tasks {
             if temp.completed {
                 completedTasks.append(temp)
             }
         }
-        if tasks.count == completedTasks.count{
-            alert.message = "Congrats on achieving your goal!"
-            let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: mindexPath) as! TaskTableViewCell
-            cell.self.checkmarkBtnPressed(nil)
-            
-            let cell2 = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! TaskTableViewCell
-            cell2.checkmarkButton.isSelected = true
-
-        } else {
-            if type == .goal {
+        if tasks.count == completedTasks.count && type == .task {
+            alert.message = "Congrats on achieving all tasks !! You are ready to checkout your goal!"
+        } else if type == .goal {
                 alert.message = "Congrats on achieving your goal!"
-            } else if type == .task {
+        } else if type == .task {
                 alert.message = "Great job on making progress!"
-            }
         }
-        
         self.present(alert, animated: true, completion: nil)
         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in alert.dismiss(animated: true, completion: nil)} )
     }
-    
-    
 }
 
-extension TodayVC: HistoryVCDelegate {
-    
-    func update(events: [Event]) {
-        
-    }
-    
-    
-}
 

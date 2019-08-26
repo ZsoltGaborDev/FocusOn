@@ -8,16 +8,18 @@
 
 import UIKit
 import CoreData
+import Foundation
 
 
 struct tableStruct {
+    var id = Int()
     var isOpened = Bool()
     var event = Event()
     var events = [Event]()
 }
 
 protocol HistoryVCDelegate {
-    func update(events: [Event])
+    func getProgressText() -> String
 }
 
 class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -26,7 +28,6 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
     
     //variables
-    var delegate: HistoryVCDelegate!
     var totalEvents = [Event]()
     var date = Date()
     var eventsOfToday = [Event]()
@@ -34,52 +35,58 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     let dataController = DataController()
     var tableArray = [tableStruct]()
+    var tableArrayToday = [tableStruct]()
+    var progressText: String?
+    var delegate: HistoryVCDelegate?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
-        totalEvents = dataController.fecthEvent()
-        prepareEventsOfToday()
-        print("there are \(totalEvents.count) events in History")
-        print("there are \(eventsOfToday.count) events of Today")
+        //totalEvents = dataController.fecthEvent()
         loadStruct()
+        print("there are \(tableArray.count) events in History")
+        print("there are \(tableArrayToday.count) events of Today")
         tableView.reloadData()
     }
     
-    func prepareEventsOfToday() {
-        var counter = 0
-        for event in totalEvents {
-            let achievedAt =  event.achievedAt
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd.MM.yyyy"
-            let resultDate = formatter.string(from: achievedAt!)
-            let today = formatter.string(from: date)
-            if resultDate == today {
-                eventsOfToday.append(event)
-                totalEvents.remove(at: counter)
-            }
-            counter += 1
-        }
+    override func viewDidAppear(_ animated: Bool) {
+        loadStruct()
     }
     
     func loadStruct() {
+        progressText = delegate?.getProgressText()
         tableArray.removeAll()
         let date = arrangeEventDates()
+        var id = 0
         for i in 0..<date.count {
             let temp = totalEvents.filter { formatDate(date: $0.achievedAt!) == date[i]}
-            //events = temp.sorted(by: { $0. .compare($1.start) == .orderedDescending })
-            if tableArray.contains(where: { formatDate(date: $0.event.achievedAt!) == date[i]}) {
-                continue
+            
+            if date[i] == getDateOfToday() {
+                let goalToday = temp.filter({ $0.goal?.isEmpty == false && formatDate(date: $0.achievedAt!) == getDateOfToday()})
+                let tasksToday = temp.filter({ $0.task?.isEmpty == false && formatDate(date: $0.achievedAt!) == getDateOfToday()})
+                var eventOfToday = Event()
+                
+                for j in goalToday {
+                    eventOfToday = j
+                }
+                tableArrayToday.append(tableStruct(id: id, isOpened: false, event: eventOfToday, events: tasksToday))
+                id += 1
             } else {
-                print(temp)
-                for j in temp {
-                    if (j.goal != nil) {
+                let goal = temp.filter({ $0.goal?.isEmpty == false && date[i] != getDateOfToday()})
+                let tasks = temp.filter({ $0.task?.isEmpty == false && date[i] != getDateOfToday()})
+                
+                if tableArray.contains(where: { formatDate(date: $0.event.achievedAt!) == date[i]}) {
+                    continue
+                } else {
+                    for j in goal {
                         self.event = j
                     }
+                    tableArray.append(tableStruct(id: id, isOpened: false, event: event, events: tasks))
+                    id += 1
                 }
-                tableArray.append(tableStruct(isOpened: false, event: event, events: temp))
             }
         }
         print("tableArray count : \(tableArray.count)")
@@ -87,9 +94,9 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     }
     
     func arrangeEventDates() -> [String]{
+        totalEvents = dataController.fecthEvent()
         var eventoDate = [Date]()
         for evento in totalEvents {
-            
             if let date = evento.achievedAt {
                 eventoDate.append(date)
             }
@@ -110,6 +117,7 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
+        print(tableArray.count)
         return tableArray.count
     }
     
@@ -122,22 +130,62 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "historyCellID", for: indexPath) as! HistoryTableViewCell
-        
-        if indexPath.row == 0 {
-            cell.taskLabel.text = tableArray[indexPath.section].event.goal
-            cell.achievedOnValue.text = formatDate(date: tableArray[indexPath.section].event.achievedAt!)
-            cell.checkmarkButton.isHidden = true
-            cell.mainView.backgroundColor = Colors.primaryColor
-            cell.taskLabel.textColor = Colors.secondaryColor
-            print(event.goal)
-            return cell
+        if indexPath.section == 0  {
+            print(" today count : \(tableArrayToday.count)")
+            if indexPath.row == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "historyCellID", for: indexPath) as! HistoryTableViewCell
+                if !tableArrayToday.isEmpty && tableArrayToday.first!.event.goal != nil {
+                    let goal = tableArrayToday.first
+                    cell.taskLabel.text = goal?.event.goal
+                    cell.achievedOnLabel.text = "achieved at:"
+                    cell.achievedOnValue.text = formatDate(date: (goal!.event.achievedAt!))
+                    cell.checkmarkButton.isHidden = true
+                    cell.mainView.backgroundColor = Colors.primaryColor
+                    cell.taskLabel.textColor = Colors.secondaryColor
+                } else {
+                    cell.taskLabel.text = progressText
+                    cell.achievedOnLabel.text = ""
+                    cell.achievedOnValue.text = getDateOfToday()
+                    cell.checkmarkButton.isHidden = true
+                    cell.mainView.backgroundColor = Colors.primaryColor
+                    cell.taskLabel.textColor = Colors.secondaryColor
+                }
+                return cell
+            } else if indexPath.row != 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "secondHistoryCellID", for: indexPath) as! SecondHistoryTableViewCell
+                if !tableArrayToday.isEmpty {
+                    print(indexPath.row)
+                    cell.taskLabel.text = tableArrayToday[indexPath.section].events[indexPath.row - 1 + tableArrayToday[0].events.count].task
+                    //cell.dateStackView.isHidden = true
+                    cell.mainView.backgroundColor = Colors.secondaryColor
+                    cell.taskLabel.textColor = Colors.primaryColor
+                } else {
+                    cell.taskLabel.text = "empty"
+                    cell.mainView.backgroundColor = Colors.secondaryColor
+                    cell.taskLabel.textColor = Colors.primaryColor
+                }
+                return cell
+            }
+        }
+        if indexPath.section != 0 {
+            if indexPath.row == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "historyCellID", for: indexPath) as! HistoryTableViewCell
+                cell.taskLabel.text = tableArray[indexPath.section].event.goal
+                cell.achievedOnValue.text = formatDate(date: tableArray[indexPath.section].event.achievedAt!)
+                cell.achievedOnLabel.text = "achieved on:"
+                cell.checkmarkButton.isHidden = true
+                cell.mainView.backgroundColor = Colors.primaryColor
+                cell.taskLabel.textColor = Colors.secondaryColor
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "secondHistoryCellID", for: indexPath) as! SecondHistoryTableViewCell
+                cell.taskLabel.text = tableArray[indexPath.section].events[indexPath.row - 1].task
+                cell.mainView.backgroundColor = Colors.secondaryColor
+                cell.taskLabel.textColor = Colors.primaryColor
+                return cell
+            }
         } else {
-            cell.taskLabel.text = tableArray[indexPath.section].events[indexPath.row - 1].task
-            cell.dateStackView.isHidden = true
-            cell.mainView.backgroundColor = Colors.secondaryColor
-            cell.taskLabel.textColor = Colors.primaryColor
-            return cell
+            return UITableViewCell.init()
         }
     }
     
@@ -179,11 +227,11 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         if tableArray[indexPath.section].isOpened {
             tableArray[indexPath.section].isOpened = false
             let section = IndexSet.init(integer: indexPath.section)
-            tableView.reloadSections(section, with: .none)
+            tableView.reloadSections(section, with: .fade)
         } else {
             tableArray[indexPath.section].isOpened = true
             let section = IndexSet.init(integer: indexPath.section)
-            tableView.reloadSections(section, with: .none)
+            tableView.reloadSections(section, with: .fade)
         }
     }
     
@@ -197,7 +245,5 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             return 0
         }
     }
-    
-    
 }
 
