@@ -18,12 +18,14 @@ class TaskTableViewCell: UITableViewCell {
     @IBOutlet weak var taskLabel: UILabel!
     @IBOutlet weak var mainView: UIView!
     
+    
+    
     @IBAction func checkmarkBtnPressed(_ sender: Any?) {
         markCompleted(!checkmarkButton.isSelected)
         delegate?.taskCell( self, completionChanged: checkmarkButton.isSelected)
     }
     
-    let dataController = DataController()
+    //let dataController = DataController()
     
     var delegate: TaskCellDelegate?
     
@@ -32,6 +34,7 @@ class TaskTableViewCell: UITableViewCell {
         let chekmarkOFF = UIImage(named: "checkmarkOFF")
         checkmarkButton.setImage(chekmarkOFF, for: .normal)
         checkmarkButton.setImage(checkmarkON, for: .selected)
+        //insertBtn.isEnabled = false
     }
     
     override func awakeFromNib() {
@@ -42,9 +45,5 @@ class TaskTableViewCell: UITableViewCell {
     
     func markCompleted(_ completed: Bool) {
         checkmarkButton.isSelected = completed
-    }
-    
-    func setCaption(_ caption:String?) {
-        taskLabel.text = caption
     }
 }

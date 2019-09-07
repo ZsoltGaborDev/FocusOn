@@ -8,7 +8,7 @@
 
 import UIKit
 
-class HistoryTableViewCell: UITableViewCell {
+class HelperTableViewCell: UITableViewCell {
 
     @IBOutlet weak var checkmarkButton: UIButton!
     @IBOutlet weak var taskLabel: UILabel!
