@@ -1,12 +1,11 @@
 //
-//  TaskTableViewCell.swift
+//  HistoryTVCell.swift
 //  FocusON
 //
-//  Created by zsolt on 23/06/2019.
+//  Created by zsolt on 12/09/2019.
 //  Copyright © 2019 zsolt. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 protocol TaskCellDelegate {
@@ -17,17 +16,24 @@ class TaskTableViewCell: UITableViewCell {
     @IBOutlet weak var checkmarkButton: UIButton!
     @IBOutlet weak var taskLabel: UILabel!
     @IBOutlet weak var mainView: UIView!
+
+
+    var delegate: TaskCellDelegate?
     
-    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        configure()
+    }
+
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+    }
     
     @IBAction func checkmarkBtnPressed(_ sender: Any?) {
         markCompleted(!checkmarkButton.isSelected)
         delegate?.taskCell( self, completionChanged: checkmarkButton.isSelected)
     }
-    
-    //let dataController = DataController()
-    
-    var delegate: TaskCellDelegate?
     
     func configure() {
         let checkmarkON = UIImage(named: "checkmarkON")
@@ -37,13 +43,11 @@ class TaskTableViewCell: UITableViewCell {
         //insertBtn.isEnabled = false
     }
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        
-        configure()
-    }
-    
     func markCompleted(_ completed: Bool) {
         checkmarkButton.isSelected = completed
+    }
+    
+    func setCaption(_ caption: String) {
+        taskLabel.text = caption
     }
 }

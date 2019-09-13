@@ -21,6 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) {(granted, error) in
             if (granted) {
+                print("We'll be able to set Reminders!")
             } else {
                 print("Authorization rejected!")
             }

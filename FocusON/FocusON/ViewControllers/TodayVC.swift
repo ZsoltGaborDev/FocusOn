@@ -19,16 +19,16 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var viewTitleLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var progressLabel: UILabel!
-    @IBOutlet weak var backgroundImage: UIImageView!
+    @IBOutlet weak var insertBtn: UIButton!
+    @IBOutlet weak var checkmarkBtn: UIButton!
+    @IBOutlet weak var goalLabel: UILabel!
+    @IBOutlet weak var topMainView: UIView!
     
     //variables
     var taskArray = [Temptask]()
-    var goalArray = [TempGoal]()
-    var tasks = [Task]()
-    var goals = [Goal]()
     var lastDeletedTask: Temptask?
-    var lastDeletedGoal: TempGoal?
     var lastDeletedIndexPath: IndexPath!
+    var dataController = DataController()
     
     //constants
     let notifications = Notifications()
@@ -38,75 +38,39 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
-        backgroundImage.isHidden = true
         configureView()
     }
     override func viewDidAppear(_ animated: Bool) {
-        insertWithTF(indexpath: IndexPath(row: 0, section: 0))
+        if taskArray.isEmpty {
+            insertGoalWithTF(indexpath: IndexPath(row: 0, section: 0))
+        }
     }
     
     func configureView() {
+        topMainView.insertShadow()
         updateProgress()
         registerForKeyboardNotification()
         manageLocalNotifications()
     }
-
     //MARK: tableview delegates
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 1
     }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-        case 0:
-            if goalArray.count == 0 {
-                return 1
-            } else {
-                return goalArray.count
-            }
-        case 1:
-            if taskArray.count == 0 {
-                return 3
-            } else {
-                return taskArray.count
-            }
-        default:
+        if taskArray.count == 0 {
             return 0
+        } else {
+            return taskArray.count
         }
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch indexPath.section {
-        case 0:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: indexPath) as! TaskTableViewCell
-            if !goalArray.isEmpty {
-                let goal = goalArray[indexPath.row]
-                cell.taskLabel.text = goal.caption
-            } else {
-                cell.taskLabel.text = "Enter your goal here..."
-            }
-            //cell.delegate = self
-            cell.contentView.backgroundColor = Colors.primaryColor
-            cell.mainView.backgroundColor = Colors.secondaryColor
-            cell.taskLabel.textColor =  Colors.primaryColor
-            cell.mainView.insertShadow()
-            return cell
-        case 1:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: indexPath) as! TaskTableViewCell
-            if !taskArray.isEmpty {
-                let task = taskArray[indexPath.row]
-                cell.taskLabel.text = task.caption
-            } else {
-                cell.taskLabel.text = "Define your task here..."
-            }
-            //cell.delegate = self
-             cell.mainView.insertShadow()
-            return cell
-        default:
-            return UITableViewCell.init()
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: indexPath) as! TaskTableViewCell
+        let task = taskArray[indexPath.row]
+        cell.taskLabel.text = task.caption
+        //cell.delegate = self
+        cell.mainView.insertShadow()
+        return cell
     }
-    
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
         case 0:
@@ -117,7 +81,6 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
             return nil
         }
     }
-    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch section {
         case 0:
@@ -128,39 +91,20 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
             return 0
         }
     }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        insertWithTF(indexpath: indexPath)
+    @IBAction func onInsertBtn(_ sender: Any) {
+        insertWithTF(indexpath: IndexPath(row: taskArray.count + 1, section: 1)   )
     }
-    
-    func insertWithTF(indexpath: IndexPath) {
-        let alertController = UIAlertController(title: "Welcome", message: "", preferredStyle: .alert)
+    func insertGoalWithTF(indexpath: IndexPath) {
+        let alertController = UIAlertController(title: "Welcome", message: "Enter your goal for today!", preferredStyle: .alert)
         alertController.addTextField { (textField : UITextField!) -> Void in
-            if indexpath.section == 0 {
-                textField.placeholder = "Enter your goal here..."
-            } else {
-                textField.placeholder = "Define your task..."
-            }
-        }
-        if indexpath.section == 0 {
-            alertController.message = "Enter your goal for today!"
-        } else {
-            alertController.message = "Enter your task!"
+            textField.placeholder = "Enter your goal..."
         }
         let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alert -> Void in
             if let textField = alertController.textFields?[0] {
                 if textField.text!.count > 0 {
-                    if indexpath.section == 0 {
-                        let goal = TempGoal()
-                        goal.caption = textField.text
-                        goal.completed = false
-                        self.insertGoal(goal, at: indexpath)
-                    } else if indexpath.section != 0 {
-                        let task = Temptask()
-                        task.caption = textField.text
-                        task.completed = false
-                        self.insertTask(task, at: indexpath)
-                    }
+                    self.goalLabel.text = textField.text!
+                    self.dataController.log(achievedAt: self.today, captionGoal: textField.text!, captionTask: nil)
+                    self.insertWithTF(indexpath: indexpath)
                 }
             }
         })
@@ -171,118 +115,54 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         alertController.preferredAction = saveAction
         self.present(alertController, animated: true, completion: nil)
     }
-    
-    func insertGoal(_ goal: TempGoal?, at indexPath: IndexPath?) {
-        if let goal = goal  {
-            if let indexPath = indexPath {
-                self.tableView.beginUpdates()
-                if goalArray.count < 1 {
-                    goalArray.insert(goal, at: indexPath.row)
-                    //insert new cell to the table
-                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                    self.tableView.insertRows(at: [indexPath], with: .automatic)
-                } else {
-                    return
-                }
-                //finish updating table
-                self.tableView.endUpdates()
-                self.tableView.reloadData()
-            }
+    func insertWithTF(indexpath: IndexPath) {
+        let alertController = UIAlertController(title: "Welcome", message: "Enter your task!", preferredStyle: .alert)
+        alertController.addTextField { (textField : UITextField!) -> Void in
+            textField.placeholder = "Define your task..."
         }
-    }
-    
-    func insertTask(_ task: Temptask?, at indexPath: IndexPath?) {
-        if let task = task {
-            if let indexPath = indexPath {
-                self.tableView.beginUpdates()
-                //taskArray.remove(at: indexPath.row)
-                taskArray.insert(task, at: indexPath.row)
-                self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                self.tableView.insertRows(at: [indexPath], with: .automatic)
-                //finish updating table
-                self.tableView.endUpdates()
-                self.tableView.reloadData()
-            }
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if goalArray.isEmpty == false {
-            if editingStyle == .delete {
-                if indexPath.section == 0 {
-                    self.deleteGoal(at: indexPath)
+        let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alert -> Void in
+            if let textField = alertController.textFields?[0] {
+                if textField.text!.count > 0 {
+                    let task = Temptask()
+                    task.caption = textField.text
+                    task.completed = false
+                    if self.taskArray.count < 3 {
+                        self.taskArray.append(task)
+                        self.dataController.addTask(caption: textField.text!)
+                    } else {
+                        return
+                    }
+                    self.tableView.reloadData()
                 }
             }
-        } else if taskArray.isEmpty == false {
-            if editingStyle == .delete {
-                if indexPath.section == 0 {
-                    self.deleteTask(at: indexPath)
-                }
-            }
-        } else {
-            return
-        }
-        self.manageLocalNotifications()
-        self.updateProgress()
+        })
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: {
+            (action : UIAlertAction!) -> Void in })
+        alertController.addAction(cancelAction)
+        alertController.addAction(saveAction)
+        alertController.preferredAction = saveAction
+        self.present(alertController, animated: true, completion: nil)
     }
 
-    func deleteGoal(at indexPath: IndexPath?) {
-        if let indexPath = indexPath {
-            if !goalArray.isEmpty {
-                lastDeletedIndexPath = indexPath
-                lastDeletedGoal = goalArray[indexPath.row]
-                // put the table view in updating mode
-                self.tableView.beginUpdates()
-                //remove object from the datasource array
-                goalArray.remove( at: indexPath.row)
-                //remove cell from the table
-                self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                self.tableView.insertRows(at: [indexPath], with: .automatic)
-                //finish updating table
-                self.tableView.endUpdates()
-                self.tableView.reloadData()
-            }
-        }
-    }
-    
-    func deleteTask(at indexPath: IndexPath?) {
-        if let indexPath = indexPath {
-            if !taskArray.isEmpty {
-                lastDeletedIndexPath = indexPath
-                lastDeletedTask = taskArray[indexPath.row]
-                // put the table view in updating mode
-                self.tableView.beginUpdates()
-                //remove object from the datasource array
-                self.taskArray.remove( at: indexPath.row)
-                //remove cell from the table
-                self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                //finish updating table
-                self.tableView.endUpdates()
-                self.tableView.reloadData()
-            }
-        }
-    }
-
-    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
-        if motion == .motionShake {
-            if lastDeletedTask != nil {
-                tableView.beginUpdates()
-                deleteTask(at: lastDeletedIndexPath)
-                insertTask(lastDeletedTask, at: lastDeletedIndexPath)
-                tableView.endUpdates()
-                lastDeletedTask = nil
-                lastDeletedIndexPath = nil
-            } else {
-                tableView.beginUpdates()
-                deleteGoal(at: lastDeletedIndexPath)
-                insertGoal(lastDeletedGoal, at: lastDeletedIndexPath)
-                tableView.endUpdates()
-                lastDeletedGoal = nil
-                lastDeletedIndexPath = nil
-            }
-        
-        }
-    }
+//    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+//        if motion == .motionShake {
+//            if lastDeletedTask != nil {
+//                tableView.beginUpdates()
+//                deleteTask(at: lastDeletedIndexPath)
+//                insertTask(lastDeletedTask, at: lastDeletedIndexPath)
+//                tableView.endUpdates()
+//                lastDeletedTask = nil
+//                lastDeletedIndexPath = nil
+//            } else {
+//                tableView.beginUpdates()
+//                deleteGoal(at: lastDeletedIndexPath)
+//                insertGoal(lastDeletedGoal, at: lastDeletedIndexPath)
+//                tableView.endUpdates()
+//                lastDeletedGoal = nil
+//                lastDeletedIndexPath = nil
+//            }
+//        }
+//    }
 
     @discardableResult
     func updateProgress() -> String {
@@ -351,12 +231,10 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     func manageLocalNotifications() {
         //prepare content
-        let totalTask = taskArray.count + goalArray.count
+        let totalTask = taskArray.count
         let completedTask = taskArray.filter { (task) -> Bool in
             return task.completed == true
-            }.count + goalArray.filter { (task) -> Bool in
-                return task.completed == true
-                }.count
+            }.count
 
         var title: String?
         var body: String?
@@ -382,14 +260,10 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         
         switch type {
         case .goal:
-            var completedGoals = [TempGoal]()
-            for temp in goalArray {
-                if temp.completed {
-                    completedGoals.append(temp)
+            for temp in taskArray{
+                if temp.completed && temp.isGoal {
+                    alert.message = "Congrats on achieving your goal!!!"
                 }
-            }
-            if goalArray.count == completedGoals.count {
-                alert.message = "Congrats on achieving your goal!!!"
             }
         case .task:
             var completedTasks = [Temptask]()
@@ -420,28 +294,29 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     }
     
     //MARK: cell delegates
-    func taskCell(_ cell: TaskTableViewCell, completionChanged completion: Bool) {
-        //identity path for a cell
-        if let indexPath = tableView.indexPath(for: cell) {
-            //update completion state
-            let task = Task(context: context)
-            task.completed = completion
-            tasks.append(task)
-            
-            let goal = Goal(context: context)
-            goal.completed = completion
-            goals.append(goal)
-            
-            if task.completed {
-                showAlert(type: .task)
-            } else if goal.completed {
-                showAlert(type: .goal)
-            }
-            manageLocalNotifications()
-            updateProgress()
-            
-        }
-    }
+//    func taskCell(_ cell: TaskTableViewCell, completionChanged completion: Bool, isGoal: Bool) {
+//        //identity path for a cell
+//        if let indexPath = tableView.indexPath(for: cell) {
+//            //update completion state
+//            let task = Task(context: context)
+//            task.completed = completion
+//            tasks.append(task)
+//
+//            let goal = Goal(context: context)
+//            goal.completed = completion
+//            goal.
+//            goals.append(goal)
+//
+//            if task.completed {
+//                showAlert(type: .task)
+//            } else if goal.completed {
+//                showAlert(type: .goal)
+//            }
+//            manageLocalNotifications()
+//            updateProgress()
+//
+//        }
+//    }
 }
 
 

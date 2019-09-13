@@ -17,19 +17,26 @@ class ProgressVC: UIViewController {
     @IBOutlet weak var chartView: UIView!
     
     var chart: Chart!
+    let dataController = DataController()
+    var task = Task()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         chartView.insertShadow()
+        
+        let data = self.dataController.fetchTask(date: dataController.today)
+        task = data as! Task
         test()
-        //dataBase = history.tableArray
-
-        // Do any additional setup after loading the view.
     }
     
     
     @IBAction func timeSegmentValueChanged(_ sender: Any) {
         
+    }
+    
+    func catchTaskNumber(date: Date) -> Double {
+        let temp = task.captionTask as! [String]
+        return Double(temp.count)
     }
     
     func test() {
@@ -45,12 +52,12 @@ class ProgressVC: UIViewController {
             xTitle: "Date",
             yTitle: "Achieved Tasks",
             bars: [
-                ("A", 2),
-                ("B", 4.5),
-                ("C", 3),
-                ("D", 5.4),
-                ("E", 6.8),
-                ("F", 0.5)
+                ("\(dataController.dateCaption(for: dataController.today))", catchTaskNumber(date: dataController.today)  ),
+//                ("B", 4.5),
+//                ("C", 3),
+//                ("D", 5.4),
+//                ("E", 6.8),
+//                ("F", 0.5)
             ],
             color: UIColor.red,
             barWidth: 20

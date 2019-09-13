@@ -8,17 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		65169F9410AAD4C71927B80A /* Pods_FocusONTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CDD66F5BFD9CABE59884EAF /* Pods_FocusONTests.framework */; };
+		D73D97B3232A5EC60075EDD1 /* TaskTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73D97B2232A5EC60075EDD1 /* TaskTableViewCell.swift */; };
+		D73D97B7232A78990075EDD1 /* HistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73D97B6232A78990075EDD1 /* HistoryCell.swift */; };
+		D73D97B9232A78B90075EDD1 /* HelpHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73D97B8232A78B90075EDD1 /* HelpHistoryCell.swift */; };
 		D73E784C22D4D54C001655B1 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73E784B22D4D54C001655B1 /* Constants.swift */; };
 		D73E786822D500D4001655B1 /* ProgressVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73E786722D500D4001655B1 /* ProgressVC.swift */; };
 		D73E787622D509BD001655B1 /* HistoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73E787522D509BD001655B1 /* HistoryVC.swift */; };
-		D73E78D722D63E59001655B1 /* HelperTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73E78D622D63E59001655B1 /* HelperTableViewCell.swift */; };
 		D73F30412321A9A7001F7454 /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73F30402321A9A7001F7454 /* Events.swift */; };
 		D740A36D22C0C60400C025B1 /* ShadowToView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D740A36C22C0C60400C025B1 /* ShadowToView.swift */; };
+		D741A7BE2325955500CCAB88 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741A7BD2325955500CCAB88 /* DataController.swift */; };
 		D760B43022DBC1DC00EDE11C /* FocusON.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D760B42E22DBC1DC00EDE11C /* FocusON.xcdatamodeld */; };
 		D777AA8422BFD1690044A0CE /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = D777AA8322BFD1690044A0CE /* Notifications.swift */; };
 		D777AA8C22BFF24D0044A0CE /* TodayVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D777AA8B22BFF24D0044A0CE /* TodayVC.swift */; };
-		D789C8C3231CFB6300330B47 /* MainTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D789C8C1231CFB6300330B47 /* MainTableViewCell.swift */; };
-		D789C8C4231CFB6300330B47 /* MainTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D789C8C2231CFB6300330B47 /* MainTableViewCell.xib */; };
 		D7DC6EEE22DE5009009A3AF2 /* FocusONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7DC6EED22DE5009009A3AF2 /* FocusONTests.swift */; };
 		D7E2CDFD22BD510F00B38639 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7E2CDFC22BD510F00B38639 /* AppDelegate.swift */; };
 		D7E2CE0222BD510F00B38639 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D7E2CE0022BD510F00B38639 /* Main.storyboard */; };
@@ -57,17 +58,18 @@
 		8D458C49B80D4E6348D53092 /* Pods-FocusONTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FocusONTests.debug.xcconfig"; path = "Target Support Files/Pods-FocusONTests/Pods-FocusONTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A88A5FE46E45CB574A0544EF /* Pods-FocusON.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FocusON.release.xcconfig"; path = "Target Support Files/Pods-FocusON/Pods-FocusON.release.xcconfig"; sourceTree = "<group>"; };
 		D138566D34576BA88299D952 /* Pods_FocusON.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FocusON.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D73D97B2232A5EC60075EDD1 /* TaskTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskTableViewCell.swift; sourceTree = "<group>"; };
+		D73D97B6232A78990075EDD1 /* HistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryCell.swift; sourceTree = "<group>"; };
+		D73D97B8232A78B90075EDD1 /* HelpHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpHistoryCell.swift; sourceTree = "<group>"; };
 		D73E784B22D4D54C001655B1 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		D73E786722D500D4001655B1 /* ProgressVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressVC.swift; sourceTree = "<group>"; };
 		D73E787522D509BD001655B1 /* HistoryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryVC.swift; sourceTree = "<group>"; };
-		D73E78D622D63E59001655B1 /* HelperTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperTableViewCell.swift; sourceTree = "<group>"; };
 		D73F30402321A9A7001F7454 /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		D740A36C22C0C60400C025B1 /* ShadowToView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowToView.swift; sourceTree = "<group>"; };
+		D741A7BD2325955500CCAB88 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		D760B42F22DBC1DC00EDE11C /* FocusOn.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FocusOn.xcdatamodel; sourceTree = "<group>"; };
 		D777AA8322BFD1690044A0CE /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		D777AA8B22BFF24D0044A0CE /* TodayVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayVC.swift; sourceTree = "<group>"; };
-		D789C8C1231CFB6300330B47 /* MainTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableViewCell.swift; sourceTree = "<group>"; };
-		D789C8C2231CFB6300330B47 /* MainTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainTableViewCell.xib; sourceTree = "<group>"; };
 		D7DC6EEB22DE5008009A3AF2 /* FocusONTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusONTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7DC6EED22DE5009009A3AF2 /* FocusONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusONTests.swift; sourceTree = "<group>"; };
 		D7DC6EEF22DE5009009A3AF2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -123,7 +125,6 @@
 			isa = PBXGroup;
 			children = (
 				D7E2CE0022BD510F00B38639 /* Main.storyboard */,
-				D789C8C2231CFB6300330B47 /* MainTableViewCell.xib */,
 			);
 			path = Storyboard;
 			sourceTree = "<group>";
@@ -151,8 +152,9 @@
 		D73E78CE22D5EC59001655B1 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				D789C8C1231CFB6300330B47 /* MainTableViewCell.swift */,
-				D73E78D622D63E59001655B1 /* HelperTableViewCell.swift */,
+				D73D97B2232A5EC60075EDD1 /* TaskTableViewCell.swift */,
+				D73D97B6232A78990075EDD1 /* HistoryCell.swift */,
+				D73D97B8232A78B90075EDD1 /* HelpHistoryCell.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -160,6 +162,7 @@
 		D760B40622DA01BB00EDE11C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D741A7BD2325955500CCAB88 /* DataController.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -314,7 +317,6 @@
 			files = (
 				D7E2CE0722BD511500B38639 /* LaunchScreen.storyboard in Resources */,
 				D7E2CE0422BD511500B38639 /* Assets.xcassets in Resources */,
-				D789C8C4231CFB6300330B47 /* MainTableViewCell.xib in Resources */,
 				D7E2CE0222BD510F00B38639 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -416,15 +418,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				D73F30412321A9A7001F7454 /* Events.swift in Sources */,
+				D741A7BE2325955500CCAB88 /* DataController.swift in Sources */,
+				D73D97B3232A5EC60075EDD1 /* TaskTableViewCell.swift in Sources */,
 				D777AA8C22BFF24D0044A0CE /* TodayVC.swift in Sources */,
 				D777AA8422BFD1690044A0CE /* Notifications.swift in Sources */,
-				D73E78D722D63E59001655B1 /* HelperTableViewCell.swift in Sources */,
 				D740A36D22C0C60400C025B1 /* ShadowToView.swift in Sources */,
+				D73D97B7232A78990075EDD1 /* HistoryCell.swift in Sources */,
 				D760B43022DBC1DC00EDE11C /* FocusON.xcdatamodeld in Sources */,
+				D73D97B9232A78B90075EDD1 /* HelpHistoryCell.swift in Sources */,
 				D7E2CDFD22BD510F00B38639 /* AppDelegate.swift in Sources */,
 				D73E787622D509BD001655B1 /* HistoryVC.swift in Sources */,
 				D73E784C22D4D54C001655B1 /* Constants.swift in Sources */,
-				D789C8C3231CFB6300330B47 /* MainTableViewCell.swift in Sources */,
 				D73E786822D500D4001655B1 /* ProgressVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

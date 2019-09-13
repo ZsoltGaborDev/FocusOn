@@ -11,10 +11,6 @@ import Foundation
 class Temptask {
     var caption: String!
     var completed: Bool!
+    var isGoal: Bool!
     
-}
-
-class TempGoal {
-    var caption: String!
-    var completed: Bool!
 }
