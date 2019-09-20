@@ -13,7 +13,7 @@ import UserNotifications
 class Notifications {
     
     func scheduleLocalNotification(title: String?, body: String?) {
-        let identifier = "HotListSummary"
+        let identifier = "TaskSummary"
         let notificationCenter = UNUserNotificationCenter.current()
         
         //remove previously scheduled notifications

@@ -35,8 +35,12 @@ class ProgressVC: UIViewController {
     }
     
     func catchTaskNumber(date: Date) -> Double {
-        let temp = task.captionTask as! [String]
-        return Double(temp.count)
+        if task.captionTask != nil {
+            let temp = task.captionTask as! [String]
+            return Double(temp.count)
+        } else {
+            return 0
+        }
     }
     
     func test() {

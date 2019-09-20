@@ -9,20 +9,24 @@
 import UIKit
 
 protocol TaskCellDelegate {
-    func taskCell(_ cell: TaskTableViewCell, completionChanged completion: Bool)
+    func taskCell(_ cell: TaskTableViewCell, numberInsertedTasks: Int)
 }
 
 class TaskTableViewCell: UITableViewCell {
     @IBOutlet weak var checkmarkButton: UIButton!
     @IBOutlet weak var taskLabel: UILabel!
     @IBOutlet weak var mainView: UIView!
-
+    @IBOutlet weak var taskNumberView: UIView!
+    @IBOutlet weak var taskNumberLabel: UILabel!
+    
 
     var delegate: TaskCellDelegate?
+    var dataController = DataController()
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
+        mainView.insertShadow()
+        taskNumberView.insertShadow()
         configure()
     }
 
@@ -31,8 +35,16 @@ class TaskTableViewCell: UITableViewCell {
     }
     
     @IBAction func checkmarkBtnPressed(_ sender: Any?) {
+        let todayView = TodayVC()
+        var task = [""]
+        task.append(taskLabel.text!)
+        if self.dataController.fetchTask(date: dataController.today) != nil {
+            dataController.updateData(taskCaption: taskLabel.text, goalCaption: nil, achievedAt: dataController.today)
+        }
+        else {
+            dataController.log(achievedAt: dataController.today, captionGoal: todayView.goal, captionTask: task)
+        }
         markCompleted(!checkmarkButton.isSelected)
-        delegate?.taskCell( self, completionChanged: checkmarkButton.isSelected)
     }
     
     func configure() {
@@ -40,7 +52,6 @@ class TaskTableViewCell: UITableViewCell {
         let chekmarkOFF = UIImage(named: "checkmarkOFF")
         checkmarkButton.setImage(chekmarkOFF, for: .normal)
         checkmarkButton.setImage(checkmarkON, for: .selected)
-        //insertBtn.isEnabled = false
     }
     
     func markCompleted(_ completed: Bool) {

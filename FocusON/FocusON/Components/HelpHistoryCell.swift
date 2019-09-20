@@ -13,10 +13,13 @@ class HelpHistoryCell: UITableViewCell {
     
     @IBOutlet weak var mainView: UIView!
     @IBOutlet weak var taskLabel: UILabel!
+    @IBOutlet weak var taskNumberView: UIView!
+    @IBOutlet weak var taskNumberLabel: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        mainView.insertShadow()
+        taskNumberView.insertShadow()
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

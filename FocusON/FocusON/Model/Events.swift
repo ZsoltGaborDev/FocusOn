@@ -8,6 +8,11 @@
 
 import Foundation
 
+class Event {
+    var todayTask: [Temptask]!
+    var date: Date!
+}
+
 class Temptask {
     var caption: String!
     var completed: Bool!

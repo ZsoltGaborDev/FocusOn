@@ -11,11 +11,13 @@ import UIKit
 extension UIView {
     func insertShadow() {
         layer.shadowColor = UIColor(red:0.07, green:0.29, blue:0.37, alpha:1.0).cgColor
-        layer.shadowOpacity = 0.5
+        layer.shadowOpacity = 0.2
         layer.shadowOffset = .zero
-        layer.shadowRadius = 5
+        layer.masksToBounds = false
+        layer.shadowRadius = 4
         layer.shouldRasterize = true
         layer.rasterizationScale = UIScreen.main.scale
         layer.shadowPath = UIBezierPath(rect: self.bounds).cgPath
+        
     }
 }

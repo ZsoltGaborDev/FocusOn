@@ -17,54 +17,64 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var viewTitle: UILabel!
     @IBOutlet weak var tableView: UITableView!
     
-    
+    //variables
     var dataController =  DataController()
-    var taskArray = [String]()
+    var taskArray: [String]?
+    var task = Task()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //tableView.register(HistoryTableViewCell.self, forCellReuseIdentifier: "historyTableViewCell")
         tableView.dataSource = self
         tableView.delegate = self
-        let data = self.dataController.fetchTask(date: dataController.today)
-        let temp = data as! Task
-        taskArray = temp.captionTask as! [String]
+        loadTask()
+        tableView.reloadData()
     }
-    
+    func loadTask() {
+        if self.dataController.fetchTask(date: dataController.today) != nil {
+            task = self.dataController.fetchTask(date: dataController.today) as! Task
+            taskArray = task.captionTask as? [String]
+        }
+    }
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0:
-            return taskArray.count + 1
+            if let temp = taskArray {
+                return temp.count + 1
+            } else {
+                return 1
+            }
         default:
-            return 2
+            return 0
         }
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.section {
         case 0:
-            let data = dataController.fetchTask(date: dataController.today) as! Task
             if indexPath.row == 0 {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath) as! HistoryCell
-                cell.taskLabel.text = data.captionGoal
-                cell.achievedOnValue.text = getDateOfToday()
-                return cell
-            } else if indexPath.row != 0 {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "helpHistoryCell", for: indexPath) as! HelpHistoryCell
-                let temp = data.captionTask as! [String]
-                for j in temp {
-                    taskArray.append(j)
+                if let temp = task.captionGoal {
+                    cell.taskLabel.text = temp
+                    cell.achievedOnValue.text = getDateOfToday()
+                } else {
+                    cell.taskLabel.text = "progress text here"
                 }
-                cell.taskLabel.text = taskArray[indexPath.row - 1]
                 return cell
             } else {
-                return UITableViewCell()
+                let cell = tableView.dequeueReusableCell(withIdentifier: "helpHistoryCell", for: indexPath) as! HelpHistoryCell
+                if let temp = taskArray {
+                    cell.taskLabel.text = temp[indexPath.row - 1]
+                    cell.taskNumberLabel.text = "\(indexPath.row)"
+                }
+                return cell
             }
         case 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath) as! HistoryCell
-            cell.setCaption("fake data here")
+            //cell.setCaption("fake data here")
+            //cell.mainView.insertShadow()
             return cell
         default:
             let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath) as! HistoryCell

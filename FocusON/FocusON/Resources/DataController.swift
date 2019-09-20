@@ -42,50 +42,31 @@ class DataController {
         return nil
     }
     
-    func update(task: NSManagedObject?, achievedAt: Date?, captionGoal: String?, captionTask: [String]?) {
+    func createFirstTask(task: NSManagedObject?, achievedAt: Date?, captionGoal: String?, captionTask: [String]?) {
+        
         if let task = task {
-            task.setValue(today, forKey: "achievedAt")
             task.setValue(captionGoal, forKey: "captionGoal")
             task.setValue(captionTask, forKey: "captionTask")
+            task.setValue(today, forKey: "achievedAt")
         }
         saveContext()
     }
     
-    func addTask(caption: String) {
-        let testData = fetchTask(date: today) as! Task
-        let testGoal = testData.captionGoal
-        var testTaskArray = [String]()
-        if testData.captionTask != nil {
-            testTaskArray = testData.captionTask as! [String]
-            testTaskArray.append(caption)
-        } else {
-            testTaskArray.append(caption)
-        }
-        update(task: testData, achievedAt: today, captionGoal: testGoal, captionTask: testTaskArray)
-    }
-    
-    func updateData(actualCaptionTask: String, newTaskCaption: String?, newGoalCaption: String?, isGoal: Bool, achievedAt: Date? ) {
-        let fechRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest.init(entityName: entityName)
-        fechRequest.predicate = NSPredicate(format: "captionTask = %@", "\(actualCaptionTask)")
-        do {
-            let task = try context.fetch(fechRequest)
-            let objectUpdate = task[0] as! NSManagedObject
-            
-            if newTaskCaption != nil {
-                let data = objectUpdate as! Task
-                var taskString = data.captionTask as! [String]
-                
-                taskString.append(newTaskCaption!)
-                objectUpdate.setValue(taskString, forKey: "captionTask")
+    func updateData(taskCaption: String?, goalCaption: String?, achievedAt: Date? ) {
+        let task = fetchTask(date: today)
+        if taskCaption != nil {
+            let data = task as! Task
+            var taskString = [String]()
+            if data.captionTask != nil {
+                taskString = data.captionTask as! [String]
             }
-            if newGoalCaption != nil {
-                objectUpdate.setValue(newGoalCaption, forKey: "captionGoal")
-            }
-            saveContext()
+            taskString.append(taskCaption!)
+            task!.setValue(taskString, forKey: "captionTask")
         }
-        catch {
-            print(error)
+        if goalCaption != nil {
+            task!.setValue(goalCaption, forKey: "captionGoal")
         }
+        saveContext()
     }
     
     private func saveContext() {
@@ -97,14 +78,14 @@ class DataController {
         }
     }
     
-//    func log(achievedAt: Date?, captionGoal: String?, captionTask: [String]?) {
-//        var task = fetchTask(date: today)
-//        if task == nil {
-//            task = createTask()
-//        }
-//        update(task: task, achievedAt: achievedAt, captionGoal: captionGoal, captionTask: captionTask)
-//        saveContext()
-//    }
+    func log(achievedAt: Date?, captionGoal: String?, captionTask: [String]?) {
+        var task = fetchTask(date: today)
+        if task == nil {
+            task = createTask()
+        }
+        createFirstTask(task: task, achievedAt: achievedAt, captionGoal: captionGoal, captionTask: captionTask)
+        saveContext()
+    }
     
     func deleteAll() {
     // Create Fetch Request
@@ -137,6 +118,7 @@ class DataController {
         dateformatter.dateStyle = .short
         dateformatter.timeStyle = .none
         dateformatter.timeZone = TimeZone.current
+        dateformatter.dateFormat = "dd MMMM yyyy"
         
         return dateformatter.string(from: date)
     }
