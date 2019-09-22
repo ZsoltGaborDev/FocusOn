@@ -27,8 +27,6 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     var captionTaskArray = [String]()
     var completedTaskArray = [String]()
     var goal: String!
-    //var lastDeletedTask: Temptask?
-    var lastDeletedIndexPath: IndexPath!
     var dataController = DataController()
     var savedTask: Task!
     
@@ -41,7 +39,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //dataController.deleteAll()
+        dataController.deleteAll()
         tableView.delegate = self
         tableView.dataSource = self
         prepareData()
@@ -54,10 +52,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     }
     func configureView() {
         topMainView.insertShadow()
-        updateProgress()
         registerForKeyboardNotification()
-        manageLocalNotifications()
-        setGoalViewColors()
     }
     //MARK: getStoredData
     func prepareData() {

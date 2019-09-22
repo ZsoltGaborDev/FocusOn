@@ -26,7 +26,7 @@ class Notifications {
             content.body = newBody
             content.sound = UNNotificationSound.default
             //create trigger
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: true)
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 120, repeats: true)
             //create request
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
             //shedule notification
