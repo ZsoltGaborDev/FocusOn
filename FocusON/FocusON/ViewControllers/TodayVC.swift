@@ -39,7 +39,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        dataController.deleteAll()
+        //dataController.deleteAll()
         tableView.delegate = self
         tableView.dataSource = self
         prepareData()
