@@ -15,19 +15,15 @@ class HistoryCell: UITableViewCell {
     @IBOutlet weak var achievedOnLabel: UILabel!
     @IBOutlet weak var achievedOnValue: UILabel!
     
-    
-    
     override func awakeFromNib() {
         super.awakeFromNib()
         mainView.insertShadow()
     }
-
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
-        // Configure the view for the selected state
+    // Configure the view for the selected state
     }
-    
     func setCaption(_ caption: String) {
         taskLabel.text = caption
     }

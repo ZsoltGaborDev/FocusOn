@@ -42,7 +42,7 @@
                                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="20"/>
-                                                                <color key="textColor" red="0.064886145290000002" green="0.29319062829999998" blue="0.3710364699" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <color key="textColor" red="0.066666666669999999" green="0.29411764709999999" blue="0.37254901959999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                         </subviews>
@@ -239,6 +239,7 @@
                     <tabBarItem key="tabBarItem" title="Today" image="todayIcon" selectedImage="todayIcon" id="Bkv-rU-05y"/>
                     <connections>
                         <outlet property="goalLabel" destination="BMj-KP-5SU" id="kHY-We-GAG"/>
+                        <outlet property="goalView" destination="u9s-mm-isX" id="icK-EI-2k8"/>
                         <outlet property="insertBtn" destination="NoF-VA-DRE" id="r62-Ii-KRk"/>
                         <outlet property="progressLabel" destination="gGH-Wn-SSX" id="ikT-bj-C2q"/>
                         <outlet property="tableView" destination="Pgg-wy-mjz" id="nAb-cK-eCI"/>
@@ -536,10 +537,10 @@
                                 </constraints>
                             </view>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="vvx-lw-5gr">
-                                <rect key="frame" x="146.5" y="172" width="121" height="29"/>
+                                <rect key="frame" x="157.5" y="172" width="99" height="29"/>
                                 <segments>
-                                    <segment title="First"/>
-                                    <segment title="Second"/>
+                                    <segment title="Tasks"/>
+                                    <segment title="Goals"/>
                                 </segments>
                                 <color key="tintColor" red="0.101188682" green="0.57616955039999995" blue="0.43675506110000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <connections>

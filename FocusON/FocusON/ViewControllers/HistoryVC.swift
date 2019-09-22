@@ -27,13 +27,12 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         getData()
         tableView.reloadData()
     }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-        
     }
+    //MARK: getData
     func getData() {
         if self.dataController.fetchTask(date: dataController.today) != nil {
             task = self.dataController.fetchTask(date: dataController.today) as! Task
@@ -41,6 +40,7 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             completedGoal = task.achievedGoal
         }
     }
+    //MARK: tableview delegates
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
@@ -89,7 +89,6 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         }
     }
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-
         switch section {
         case 0:
             return "Today"
@@ -109,12 +108,12 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             return 0
         }
     }
+    //dateManagement
     func getDateOfToday() -> String {
         let date = Date()
         let formatter = DateFormatter()
         formatter.dateFormat = "dd.MM.yyyy"
         let today = formatter.string(from: date)
-        
         return today
     }
     func formatDate(date: Date) -> String {

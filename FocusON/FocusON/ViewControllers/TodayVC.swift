@@ -21,6 +21,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     @IBOutlet weak var insertBtn: UIButton!
     @IBOutlet weak var goalLabel: UILabel!
     @IBOutlet weak var topMainView: UIView!
+    @IBOutlet weak var goalView: UIView!
     
     //variables
     var captionTaskArray = [String]()
@@ -51,15 +52,14 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
             insertGoalWithTF(indexpath: IndexPath(row: 0, section: 0))
         }
     }
-    
     func configureView() {
         topMainView.insertShadow()
         updateProgress()
         registerForKeyboardNotification()
         manageLocalNotifications()
+        setGoalViewColors()
     }
-    //MARK: get saved Data
-    
+    //MARK: getStoredData
     func prepareData() {
         if self.dataController.fetchTask(date: dataController.today) != nil {
             savedTask = (dataController.fetchTask(date: dataController.today) as! Task)
@@ -71,6 +71,9 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
                 completedTaskArray = savedTask.achievedTasks as! [String]
             }
         }
+        setGoalViewColors()
+        updateProgress()
+        manageLocalNotifications()
     }
     //MARK: tableview delegates
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -94,8 +97,8 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
             cell.checkmarkButton.isSelected = true
         }
         goalLabel.text = goal
-        
         updateProgress()
+        manageLocalNotifications()
         return cell
     }
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -150,45 +153,24 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         alertController.preferredAction = saveAction
         self.present(alertController, animated: true, completion: nil)
     }
+    //MARK: manageData
     func addToAchieved(_ cell: TaskTableViewCell) {
         if let task = cell.taskLabel.text {
-            print(task)
             self.dataController.updateData(taskCaption: nil, achievedTask: task, goalCaption: nil, achievedGoal: nil, achievedAt: self.dataController.today)
-            let test = dataController.fetchTask(date: today) as! Task
-            print("achieved tasks: \(test.achievedTasks as! [String])")
+            prepareData()
+            showAlert(alertChecked: true)
         }
     }
     func removeFromAchieved(_ cell: TaskTableViewCell) {
         if let task = cell.taskLabel.text {
-            print(task)
-            self.dataController.removeFromData(taskCaption: nil, achievedTask: task, goalCaption: nil, achievedGoal: nil, achievedAt: today)
-            let test = dataController.fetchTask(date: today) as! Task
-            print("achieved tasks: \(test.achievedTasks as! [String])")
+            self.dataController.removeFromData(taskCaption: nil, achievedTask: task, goalCaption: nil, achievedGoal: "setThisNil", achievedAt: today)
+            prepareData()
+            showAlert(alertChecked: false)
         }
     }
-    
     func checkCell(_ cell: TaskTableViewCell) {
         cell.markCompleted(true)
     }
-//    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
-//        if motion == .motionShake {
-//            if lastDeletedTask != nil {
-//                tableView.beginUpdates()
-//                deleteTask(at: lastDeletedIndexPath)
-//                insertTask(lastDeletedTask, at: lastDeletedIndexPath)
-//                tableView.endUpdates()
-//                lastDeletedTask = nil
-//                lastDeletedIndexPath = nil
-//            } else {
-//                tableView.beginUpdates()
-//                deleteGoal(at: lastDeletedIndexPath)
-//                insertGoal(lastDeletedGoal, at: lastDeletedIndexPath)
-//                tableView.endUpdates()
-//                lastDeletedGoal = nil
-//                lastDeletedIndexPath = nil
-//            }
-//        }
-//    }
     //MARK: progress info bar
     func updateProgress() {
         //initial values for task count
@@ -236,12 +218,14 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         notifications.scheduleLocalNotification(title: title, body: body)
     }
     //MARK: alert management
-    func showAlert() {
+    func showAlert(alertChecked: Bool) {
         let alert = UIAlertController(title: nil, message: "ah, no biggie, you’ll get it next time!", preferredStyle: .alert)
-        if captionTaskArray.count == completedTaskArray.count {
-            alert.message = "Well done!!! You just achieved your goal!"
-        } else {
-            alert.message = "Great job on making progress!"
+        if alertChecked {
+            if captionTaskArray.count == completedTaskArray.count {
+                alert.message = "Well done!!! You just achieved your goal!"
+            } else {
+                alert.message = "Great job on making progress!"
+            }
         }
         self.present(alert, animated: true, completion: nil)
         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in alert.dismiss(animated: true, completion: nil)} )
@@ -260,22 +244,31 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         let mainView = tableView
         return mainView!
     }
+    //MARK: keyboardSetup
     func registerForKeyboardNotification() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil )
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil )
-        
     }
     @objc func keyboardWillShow(notification: NSNotification) {
         let keyboardFrame = notification.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! CGRect
         adjustLayoutForKeyboard(targetHeight: keyboardFrame.size.height)
     }
-    
     @objc func keyboardWillHide(notification: NSNotification) {
         adjustLayoutForKeyboard(targetHeight: 0)
     }
-    
     func adjustLayoutForKeyboard(targetHeight: CGFloat) {
         tableView.contentInset.bottom = targetHeight
+    }
+    //MARK: updateGoalView
+    func setGoalViewColors() {
+        if captionTaskArray.count == completedTaskArray.count {
+            goalView.backgroundColor = Colors.primaryColor
+            goalLabel.textColor = Colors.secondaryColor
+            dataController.updateData(taskCaption: nil, achievedTask: nil, goalCaption: nil, achievedGoal: goal, achievedAt: today)
+        } else {
+            goalView.backgroundColor = Colors.secondaryColor
+            goalLabel.textColor = Colors.primaryColor
+        }
     }
 }
 
