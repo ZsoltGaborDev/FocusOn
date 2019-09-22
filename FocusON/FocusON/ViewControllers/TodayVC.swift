@@ -257,9 +257,11 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     //MARK: updateGoalView
     func setGoalViewColors() {
         if captionTaskArray.count == completedTaskArray.count {
-            goalView.backgroundColor = Colors.primaryColor
-            goalLabel.textColor = Colors.secondaryColor
-            dataController.updateData(taskCaption: nil, achievedTask: nil, goalCaption: nil, achievedGoal: goal, achievedAt: today)
+            if completedTaskArray.count != 0 {
+                goalView.backgroundColor = Colors.primaryColor
+                goalLabel.textColor = Colors.secondaryColor
+                dataController.updateData(taskCaption: nil, achievedTask: nil, goalCaption: nil, achievedGoal: goal, achievedAt: today)
+            }
         } else {
             goalView.backgroundColor = Colors.secondaryColor
             goalLabel.textColor = Colors.primaryColor
