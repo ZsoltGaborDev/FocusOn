@@ -14,7 +14,6 @@
 		D73E784C22D4D54C001655B1 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73E784B22D4D54C001655B1 /* Constants.swift */; };
 		D73E786822D500D4001655B1 /* ProgressVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73E786722D500D4001655B1 /* ProgressVC.swift */; };
 		D73E787622D509BD001655B1 /* HistoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73E787522D509BD001655B1 /* HistoryVC.swift */; };
-		D73F30412321A9A7001F7454 /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73F30402321A9A7001F7454 /* Events.swift */; };
 		D740A36D22C0C60400C025B1 /* ShadowToView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D740A36C22C0C60400C025B1 /* ShadowToView.swift */; };
 		D741A7BE2325955500CCAB88 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741A7BD2325955500CCAB88 /* DataController.swift */; };
 		D760B43022DBC1DC00EDE11C /* FocusON.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D760B42E22DBC1DC00EDE11C /* FocusON.xcdatamodeld */; };
@@ -64,7 +63,6 @@
 		D73E784B22D4D54C001655B1 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		D73E786722D500D4001655B1 /* ProgressVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressVC.swift; sourceTree = "<group>"; };
 		D73E787522D509BD001655B1 /* HistoryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryVC.swift; sourceTree = "<group>"; };
-		D73F30402321A9A7001F7454 /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		D740A36C22C0C60400C025B1 /* ShadowToView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowToView.swift; sourceTree = "<group>"; };
 		D741A7BD2325955500CCAB88 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		D760B42F22DBC1DC00EDE11C /* FocusOn.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FocusOn.xcdatamodel; sourceTree = "<group>"; };
@@ -116,7 +114,6 @@
 			isa = PBXGroup;
 			children = (
 				D760B42E22DBC1DC00EDE11C /* FocusON.xcdatamodeld */,
-				D73F30402321A9A7001F7454 /* Events.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -417,7 +414,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D73F30412321A9A7001F7454 /* Events.swift in Sources */,
 				D741A7BE2325955500CCAB88 /* DataController.swift in Sources */,
 				D73D97B3232A5EC60075EDD1 /* TaskTableViewCell.swift in Sources */,
 				D777AA8C22BFF24D0044A0CE /* TodayVC.swift in Sources */,

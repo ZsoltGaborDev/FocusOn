@@ -10,28 +10,29 @@ import UIKit
 import UserNotifications
 import CoreData
 
-enum type {
-    case goal
-    case task
+protocol TodayVCDelegate {
+    func checkCell(checkmark: Bool)
 }
-
-class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, TaskCellDelegate {
+    
     @IBOutlet weak var viewTitleLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var progressLabel: UILabel!
     @IBOutlet weak var insertBtn: UIButton!
-    @IBOutlet weak var checkmarkBtn: UIButton!
     @IBOutlet weak var goalLabel: UILabel!
     @IBOutlet weak var topMainView: UIView!
     
     //variables
-    var taskArray = [Temptask]()
+    var captionTaskArray = [String]()
+    var completedTaskArray = [String]()
     var goal: String!
-    var lastDeletedTask: Temptask?
+    //var lastDeletedTask: Temptask?
     var lastDeletedIndexPath: IndexPath!
     var dataController = DataController()
-    var goalIsChecked = false
     var savedTask: Task!
+    
+    //delegate
+    var delegate: TodayVCDelegate?
     
     //constants
     let notifications = Notifications()
@@ -42,46 +43,58 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         //dataController.deleteAll()
         tableView.delegate = self
         tableView.dataSource = self
+        prepareData()
         configureView()
     }
     override func viewDidAppear(_ animated: Bool) {
-        if taskArray.isEmpty {
+        if captionTaskArray.isEmpty {
             insertGoalWithTF(indexpath: IndexPath(row: 0, section: 0))
         }
     }
     
     func configureView() {
-        getData()
-        checkmarkBtn.isHidden = false
         topMainView.insertShadow()
         updateProgress()
         registerForKeyboardNotification()
         manageLocalNotifications()
-        
     }
-    //MARK: get Data
-    func getData() {
-        if self.dataController.fetchTask(date: dataController.today) !=  nil {
-            savedTask = (self.dataController.fetchTask(date: dataController.today) as! Task)
+    //MARK: get saved Data
+    
+    func prepareData() {
+        if self.dataController.fetchTask(date: dataController.today) != nil {
+            savedTask = (dataController.fetchTask(date: dataController.today) as! Task)
+            self.goal = savedTask.captionGoal
+            if savedTask.captionTask != nil {
+                captionTaskArray = savedTask.captionTask as! [String]
+            }
+            if savedTask.achievedTasks != nil {
+                completedTaskArray = savedTask.achievedTasks as! [String]
+            }
         }
-        
     }
     //MARK: tableview delegates
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if taskArray.count == 0 {
+        if captionTaskArray.count == 0 {
             return 0
         } else {
-            return taskArray.count
+            return captionTaskArray.count
         }
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "taskCellID", for: indexPath) as! TaskTableViewCell
-        let task = taskArray[indexPath.row]
-        cell.taskLabel.text = task.caption
+        cell.delegate = self
+    
+        let task = captionTaskArray[indexPath.row]
+        cell.taskLabel.text = task
         cell.taskNumberLabel.text = "\(indexPath.row + 1)."
+        if completedTaskArray.contains(task) {
+            cell.checkmarkButton.isSelected = true
+        }
+        goalLabel.text = goal
+        
         updateProgress()
         return cell
     }
@@ -91,8 +104,9 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 40
     }
+    //MARK: Insert data with textfield
     @IBAction func onInsertBtn(_ sender: Any) {
-        insertWithTF(indexpath: IndexPath(row: taskArray.count + 1, section: 1)   )
+        insertWithTF(indexpath: IndexPath(row: captionTaskArray.count + 1, section: 1)   )
     }
     func insertGoalWithTF(indexpath: IndexPath) {
         let alertController = UIAlertController(title: "Welcome", message: "Enter your goal for today!", preferredStyle: .alert)
@@ -102,8 +116,8 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alert -> Void in
             if let textField = alertController.textFields?[0] {
                 if textField.text!.count > 0 {
-                    self.goalLabel.text = textField.text!
-                    self.goal = textField.text!
+                    self.dataController.log(achievedAt: nil, captionGoal: textField.text!, captionTask: nil)
+                    self.prepareData()
                     self.insertWithTF(indexpath: indexpath)
                 }
             }
@@ -123,12 +137,9 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alert -> Void in
             if let textField = alertController.textFields?[0] {
                 if textField.text!.count > 0 {
-                    let task = Temptask()
-                    task.caption = textField.text
-                    task.completed = false
-                    self.taskArray.append(task)
+                    self.dataController.updateData(taskCaption: textField.text!, achievedTask: nil, goalCaption: nil, achievedGoal: nil, achievedAt: nil)
+                    self.prepareData()
                     self.tableView.reloadData()
-                    self.updateProgress()
                 }
             }
         })
@@ -139,29 +150,26 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         alertController.preferredAction = saveAction
         self.present(alertController, animated: true, completion: nil)
     }
-    //MARK:checkin DB
-    @IBAction func onCheckmarkBtn(_ sender: Any) {
-        if goalIsChecked == true {
-            goalIsChecked = false
-            setGoalCheckmark(isOn: false)
-        } else {
-            goalIsChecked = true
-            setGoalCheckmark(isOn: true)
-            if self.dataController.fetchTask(date: dataController.today) != nil {
-                dataController.updateData(taskCaption: nil, goalCaption: goal, achievedAt: today)
-            }
-            else {
-                dataController.log(achievedAt: dataController.today, captionGoal: goal, captionTask: nil)
-            }
+    func addToAchieved(_ cell: TaskTableViewCell) {
+        if let task = cell.taskLabel.text {
+            print(task)
+            self.dataController.updateData(taskCaption: nil, achievedTask: task, goalCaption: nil, achievedGoal: nil, achievedAt: self.dataController.today)
+            let test = dataController.fetchTask(date: today) as! Task
+            print("achieved tasks: \(test.achievedTasks as! [String])")
+        }
+    }
+    func removeFromAchieved(_ cell: TaskTableViewCell) {
+        if let task = cell.taskLabel.text {
+            print(task)
+            self.dataController.removeFromData(taskCaption: nil, achievedTask: task, goalCaption: nil, achievedGoal: nil, achievedAt: today)
+            let test = dataController.fetchTask(date: today) as! Task
+            print("achieved tasks: \(test.achievedTasks as! [String])")
         }
     }
     
-    //MARK: load previous data
-    
-    func prepareData() {
-        
+    func checkCell(_ cell: TaskTableViewCell) {
+        cell.markCompleted(true)
     }
-
 //    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
 //        if motion == .motionShake {
 //            if lastDeletedTask != nil {
@@ -182,13 +190,11 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
 //        }
 //    }
     //MARK: progress info bar
-    @discardableResult
-    func updateProgress() -> String {
-        //calculate the initial values for task count
-        let totalTask = taskArray.count
-        let temp = savedTask.captionTask as! [String]
-        let completed = temp.count
-        //calculate a caption variable
+    func updateProgress() {
+        //initial values for task count
+        let totalTask = captionTaskArray.count
+        let completed = completedTaskArray.count
+        //caption variable
         var caption = "What's going on?!"
         //handle range possible scenarios
         if totalTask == 0 { // no task
@@ -203,20 +209,13 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         else { //completed tasks less than total tasks
             caption = "\(completed) down \(totalTask - completed) to go!"
         }
-
-        //assign the progress caption text to the label
         progressLabel.text = caption
-        return caption
     }
-    
-    
     //MARK: notifications setup
     func manageLocalNotifications() {
         //prepare content
-        let totalTask = taskArray.count
-        let completedTask = taskArray.filter { (task) -> Bool in
-            return task.completed == true
-            }.count
+        let totalTask = captionTaskArray.count
+        let completedTask = completedTaskArray.count
 
         var title: String?
         var body: String?
@@ -237,28 +236,12 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         notifications.scheduleLocalNotification(title: title, body: body)
     }
     //MARK: alert management
-    func showAlert(type: type) {
+    func showAlert() {
         let alert = UIAlertController(title: nil, message: "ah, no biggie, you’ll get it next time!", preferredStyle: .alert)
-        
-        switch type {
-        case .goal:
-            for temp in taskArray{
-                if temp.completed && temp.isGoal {
-                    alert.message = "Congrats on achieving your goal!!!"
-                }
-            }
-        case .task:
-            var completedTasks = [Temptask]()
-            for temp in taskArray {
-                if temp.completed {
-                    completedTasks.append(temp)
-                }
-            }
-            if taskArray.count == completedTasks.count {
-                alert.message = "Congrats on achieving all tasks !! You are ready to checkout your goal!"
-            } else {
-                alert.message = "Great job on making progress!"
-            }
+        if captionTaskArray.count == completedTaskArray.count {
+            alert.message = "Well done!!! You just achieved your goal!"
+        } else {
+            alert.message = "Great job on making progress!"
         }
         self.present(alert, animated: true, completion: nil)
         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in alert.dismiss(animated: true, completion: nil)} )
@@ -271,16 +254,6 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone.current
         return calendar.startOfDay(for: date) // eg. yyyy-mm-dd 00:00:00
-    }
-    
-    func setGoalCheckmark(isOn: Bool) {
-        if isOn {
-            let checkmarkON = UIImage(named: "checkmarkON")
-            checkmarkBtn.setImage(checkmarkON, for: .normal)
-        } else {
-            let chekmarkOFF = UIImage(named: "checkmarkOFF")
-            checkmarkBtn.setImage(chekmarkOFF, for: .normal)
-        }
     }
     //MARK: keyboard management
     func manageLayoutWithKeyboard() -> UITableView {

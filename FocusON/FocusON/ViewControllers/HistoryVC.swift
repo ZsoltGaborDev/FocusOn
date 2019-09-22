@@ -11,7 +11,6 @@ import CoreData
 import Foundation
 
 
-
 class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var viewTitle: UILabel!
@@ -19,21 +18,27 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     //variables
     var dataController =  DataController()
-    var taskArray: [String]?
+    var completedTaskArray: [String]?
+    var completedGoal: String!
     var task = Task()
-
+    var progressText: String?
+    
+    override func viewDidAppear(_ animated: Bool) {
+        getData()
+        tableView.reloadData()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-        loadTask()
-        tableView.reloadData()
+        
     }
-    func loadTask() {
+    func getData() {
         if self.dataController.fetchTask(date: dataController.today) != nil {
             task = self.dataController.fetchTask(date: dataController.today) as! Task
-            taskArray = task.captionTask as? [String]
+            completedTaskArray = task.achievedTasks as? [String]
+            completedGoal = task.achievedGoal
         }
     }
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -42,7 +47,7 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0:
-            if let temp = taskArray {
+            if let temp = completedTaskArray {
                 return temp.count + 1
             } else {
                 return 1
@@ -56,16 +61,17 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         case 0:
             if indexPath.row == 0 {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath) as! HistoryCell
-                if let temp = task.captionGoal {
-                    cell.taskLabel.text = temp
+                if  completedGoal != nil {
+                    cell.taskLabel.text = completedGoal
                     cell.achievedOnValue.text = getDateOfToday()
                 } else {
-                    cell.taskLabel.text = "progress text here"
+                    cell.taskLabel.text = progressText
+                    cell.achievedOnValue.text = getDateOfToday()
                 }
                 return cell
             } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "helpHistoryCell", for: indexPath) as! HelpHistoryCell
-                if let temp = taskArray {
+                if let temp = completedTaskArray {
                     cell.taskLabel.text = temp[indexPath.row - 1]
                     cell.taskNumberLabel.text = "\(indexPath.row)"
                 }

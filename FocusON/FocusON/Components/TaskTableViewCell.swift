@@ -9,10 +9,11 @@
 import UIKit
 
 protocol TaskCellDelegate {
-    func taskCell(_ cell: TaskTableViewCell, numberInsertedTasks: Int)
+    func addToAchieved(_ cell: TaskTableViewCell)
+    func removeFromAchieved(_ cell: TaskTableViewCell)
 }
 
-class TaskTableViewCell: UITableViewCell {
+class TaskTableViewCell: UITableViewCell, TodayVCDelegate {
     @IBOutlet weak var checkmarkButton: UIButton!
     @IBOutlet weak var taskLabel: UILabel!
     @IBOutlet weak var mainView: UIView!
@@ -22,9 +23,11 @@ class TaskTableViewCell: UITableViewCell {
 
     var delegate: TaskCellDelegate?
     var dataController = DataController()
+    let todayVC = TodayVC()
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        todayVC.delegate = self
         mainView.insertShadow()
         taskNumberView.insertShadow()
         configure()
@@ -35,29 +38,25 @@ class TaskTableViewCell: UITableViewCell {
     }
     
     @IBAction func checkmarkBtnPressed(_ sender: Any?) {
-        let todayView = TodayVC()
-        var task = [""]
-        task.append(taskLabel.text!)
-        if self.dataController.fetchTask(date: dataController.today) != nil {
-            dataController.updateData(taskCaption: taskLabel.text, goalCaption: nil, achievedAt: dataController.today)
-        }
-        else {
-            dataController.log(achievedAt: dataController.today, captionGoal: todayView.goal, captionTask: task)
-        }
         markCompleted(!checkmarkButton.isSelected)
+        if checkmarkButton.isSelected {
+            delegate?.addToAchieved(self)
+        } else {
+            delegate?.removeFromAchieved(self)
+        }
     }
-    
     func configure() {
         let checkmarkON = UIImage(named: "checkmarkON")
         let chekmarkOFF = UIImage(named: "checkmarkOFF")
         checkmarkButton.setImage(chekmarkOFF, for: .normal)
         checkmarkButton.setImage(checkmarkON, for: .selected)
     }
-    
+    func checkCell(checkmark: Bool) {
+        markCompleted(checkmark)
+    }
     func markCompleted(_ completed: Bool) {
         checkmarkButton.isSelected = completed
     }
-    
     func setCaption(_ caption: String) {
         taskLabel.text = caption
     }

@@ -47,7 +47,6 @@ class ProgressVC: UIViewController {
         let chartConfig = BarsChartConfig(
             valsAxisConfig: ChartAxisConfig(from: 0, to: 8, by: 1)
         )
-        
         let frame = CGRect(x: 10, y: 50, width: chartView.frame.width - 30, height: chartView.frame.height - 60)
         
         let chart = BarsChart(

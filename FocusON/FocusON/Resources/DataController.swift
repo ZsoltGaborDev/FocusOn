@@ -52,7 +52,7 @@ class DataController {
         saveContext()
     }
     
-    func updateData(taskCaption: String?, goalCaption: String?, achievedAt: Date? ) {
+    func updateData(taskCaption: String?, achievedTask: String?, goalCaption: String?, achievedGoal: String?, achievedAt: Date? ) {
         let task = fetchTask(date: today)
         if taskCaption != nil {
             let data = task as! Task
@@ -63,9 +63,55 @@ class DataController {
             taskString.append(taskCaption!)
             task!.setValue(taskString, forKey: "captionTask")
         }
+        if achievedTask != nil {
+            let data = task as! Task
+            var taskString = [String]()
+            if data.achievedTasks != nil {
+                taskString = data.achievedTasks as! [String]
+            }
+            taskString.append(achievedTask!)
+            task!.setValue(taskString, forKey: "achievedTasks")
+        }
         if goalCaption != nil {
             task!.setValue(goalCaption, forKey: "captionGoal")
         }
+        if achievedGoal != nil {
+            task!.setValue(achievedGoal, forKey: "achievedGoal")
+        }
+        saveContext()
+    }
+    
+    func removeFromData(taskCaption: String?, achievedTask: String?, goalCaption: String?, achievedGoal: String?, achievedAt: Date? ) {
+        let task = fetchTask(date: today)
+        if taskCaption != nil {
+            let data = task as! Task
+            var taskStringArray = [String]()
+            if data.captionTask != nil {
+                taskStringArray = data.captionTask as! [String]
+            }
+            if let index = taskStringArray.firstIndex(of: taskCaption!) {
+                taskStringArray.remove(at: index)
+            }
+            task!.setValue(taskStringArray, forKey: "captionTask")
+        }
+        if achievedTask != nil {
+            let data = task as! Task
+            var taskStringArray = [String]()
+            if data.achievedTasks != nil {
+                taskStringArray = data.achievedTasks as! [String]
+            }
+            if let index = taskStringArray.firstIndex(of: achievedTask!) {
+                taskStringArray.remove(at: index)
+            }
+            task!.setValue(taskStringArray, forKey: "achievedTasks")
+        }
+        if goalCaption != nil {
+            task!.setValue(goalCaption, forKey: "captionGoal")
+        }
+        if achievedGoal != nil {
+            task!.setValue(nil, forKey: "achievedGoal")
+        }
+        
         saveContext()
     }
     
