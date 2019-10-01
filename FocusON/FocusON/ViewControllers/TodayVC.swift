@@ -47,12 +47,15 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     }
     override func viewDidAppear(_ animated: Bool) {
         if captionTaskArray.isEmpty {
-            insertGoalWithTF(indexpath: IndexPath(row: 0, section: 0))
+            insertGoalWithTF()
         }
     }
     func configureView() {
         topMainView.insertShadow()
         registerForKeyboardNotification()
+        let goalLabelTapped = UITapGestureRecognizer(target: self, action: #selector(changeGoal))
+        goalLabel.isUserInteractionEnabled = true
+        goalLabel.addGestureRecognizer(goalLabelTapped)
     }
     //MARK: getStoredData
     func prepareData() {
@@ -102,11 +105,15 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 40
     }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let task = captionTaskArray[indexPath.row]
+        modifyWithTF(originalTask: task)
+    }
     //MARK: Insert data with textfield
     @IBAction func onInsertBtn(_ sender: Any) {
         insertWithTF(indexpath: IndexPath(row: captionTaskArray.count + 1, section: 1)   )
     }
-    func insertGoalWithTF(indexpath: IndexPath) {
+    func insertGoalWithTF() {
         let alertController = UIAlertController(title: "Welcome", message: "Enter your goal for today!", preferredStyle: .alert)
         alertController.addTextField { (textField : UITextField!) -> Void in
             textField.placeholder = "Enter your goal..."
@@ -116,7 +123,27 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
                 if textField.text!.count > 0 {
                     self.dataController.log(achievedAt: nil, captionGoal: textField.text!, captionTask: nil)
                     self.prepareData()
-                    self.insertWithTF(indexpath: indexpath)
+                    self.insertWithTF(indexpath: IndexPath(row: self.captionTaskArray.count + 1, section: 1))
+                }
+            }
+        })
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: {
+            (action : UIAlertAction!) -> Void in })
+        alertController.addAction(cancelAction)
+        alertController.addAction(saveAction)
+        alertController.preferredAction = saveAction
+        self.present(alertController, animated: true, completion: nil)
+    }
+    func modifyGoalWithTF(originalGoal: String) {
+        let alertController = UIAlertController(title: "Update", message: "Modify your goal for today!", preferredStyle: .alert)
+        alertController.addTextField { (textField : UITextField!) -> Void in
+            textField.placeholder = "Modify your goal..."
+        }
+        let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alert -> Void in
+            if let textField = alertController.textFields?[0] {
+                if textField.text!.count > 0 {
+                    self.dataController.updateData(taskCaption: nil, achievedTask: nil, modifiedTask: nil, goalCaption: originalGoal, achievedGoal: nil, modifiedGoal: textField.text!, achievedAt: self.today)
+                    self.prepareData()
                 }
             }
         })
@@ -135,7 +162,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alert -> Void in
             if let textField = alertController.textFields?[0] {
                 if textField.text!.count > 0 {
-                    self.dataController.updateData(taskCaption: textField.text!, achievedTask: nil, goalCaption: nil, achievedGoal: nil, achievedAt: nil)
+                    self.dataController.updateData(taskCaption: textField.text!, achievedTask: nil,modifiedTask: nil, goalCaption: nil, achievedGoal: nil, modifiedGoal: nil, achievedAt: nil)
                     self.prepareData()
                     self.tableView.reloadData()
                 }
@@ -148,10 +175,34 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         alertController.preferredAction = saveAction
         self.present(alertController, animated: true, completion: nil)
     }
+    func modifyWithTF(originalTask: String) {
+        let alertController = UIAlertController(title: "Update!", message: "Modify your task!", preferredStyle: .alert)
+        alertController.addTextField { (textField : UITextField!) -> Void in
+            textField.placeholder = "Modify your task..."
+        }
+        let saveAction = UIAlertAction(title: "Save", style: .default, handler: { alert -> Void in
+            if let textField = alertController.textFields?[0] {
+                if textField.text!.count > 0 {
+                    self.dataController.updateData(taskCaption: originalTask, achievedTask: nil, modifiedTask: textField.text!, goalCaption: nil, achievedGoal: nil, modifiedGoal: nil, achievedAt: nil)
+                    self.prepareData()
+                    self.tableView.reloadData()
+                }
+            }
+        })
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: {
+            (action : UIAlertAction!) -> Void in })
+        alertController.addAction(cancelAction)
+        alertController.addAction(saveAction)
+        alertController.preferredAction = saveAction
+        self.present(alertController, animated: true, completion: nil)
+    }
+    @objc func changeGoal() {
+        
+    }
     //MARK: manageData
     func addToAchieved(_ cell: TaskTableViewCell) {
         if let task = cell.taskLabel.text {
-            self.dataController.updateData(taskCaption: nil, achievedTask: task, goalCaption: nil, achievedGoal: nil, achievedAt: self.dataController.today)
+            self.dataController.updateData(taskCaption: nil, achievedTask: task, modifiedTask: nil, goalCaption: nil, achievedGoal: nil, modifiedGoal: nil, achievedAt: self.dataController.today)
             prepareData()
             showAlert(alertChecked: true)
         }
@@ -260,7 +311,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
             if completedTaskArray.count != 0 {
                 goalView.backgroundColor = Colors.primaryColor
                 goalLabel.textColor = Colors.secondaryColor
-                dataController.updateData(taskCaption: nil, achievedTask: nil, goalCaption: nil, achievedGoal: goal, achievedAt: today)
+                dataController.updateData(taskCaption: nil, achievedTask: nil, modifiedTask: nil, goalCaption: nil, achievedGoal: goal, modifiedGoal: nil, achievedAt: today)
             }
         } else {
             goalView.backgroundColor = Colors.secondaryColor

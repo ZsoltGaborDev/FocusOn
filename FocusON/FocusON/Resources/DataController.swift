@@ -22,14 +22,12 @@ class DataController {
         context = appDelegate.persistentContainer.viewContext
         entity = NSEntityDescription.entity(forEntityName: entityName, in: context)
     }
-    
     func createTask() -> NSManagedObject? {
         if let entity = entity {
             return NSManagedObject(entity: entity, insertInto: context)
         }
         return nil
     }
-    
     func fetchTask(date: Date) -> NSManagedObject? {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         request.predicate = NSPredicate(format: "achievedAt = %@", startOfDay(for: date) as NSDate)
@@ -41,7 +39,6 @@ class DataController {
         }
         return nil
     }
-    
     func createFirstTask(task: NSManagedObject?, achievedAt: Date?, captionGoal: String?, captionTask: [String]?) {
         
         if let task = task {
@@ -51,17 +48,29 @@ class DataController {
         }
         saveContext()
     }
-    
-    func updateData(taskCaption: String?, achievedTask: String?, goalCaption: String?, achievedGoal: String?, achievedAt: Date? ) {
+    func updateData(taskCaption: String?, achievedTask: String?, modifiedTask: String?, goalCaption: String?, achievedGoal: String?,modifiedGoal: String?, achievedAt: Date? ) {
         let task = fetchTask(date: today)
         if taskCaption != nil {
             let data = task as! Task
             var taskString = [String]()
+            var achievedTaskString = [String]()
             if data.captionTask != nil {
                 taskString = data.captionTask as! [String]
             }
-            taskString.append(taskCaption!)
-            task!.setValue(taskString, forKey: "captionTask")
+            if modifiedTask != nil {
+                if data.achievedTasks != nil {
+                    achievedTaskString = data.achievedTasks as! [String]
+                    achievedTaskString.removeAll { $0 == taskCaption }
+                    achievedTaskString.append(modifiedTask!)
+                    task!.setValue(achievedTaskString, forKey: "achievedTasks")
+                }
+                taskString.removeAll { $0 == taskCaption!}
+                taskString.append(modifiedTask!)
+                task!.setValue(taskString, forKey: "captionTask")
+            } else {
+                taskString.append(taskCaption!)
+                task!.setValue(taskString, forKey: "captionTask")
+            }
         }
         if achievedTask != nil {
             let data = task as! Task
@@ -73,14 +82,20 @@ class DataController {
             task!.setValue(taskString, forKey: "achievedTasks")
         }
         if goalCaption != nil {
-            task!.setValue(goalCaption, forKey: "captionGoal")
+            if modifiedGoal != nil {
+                task!.setValue(modifiedGoal, forKey: "captionGoal")
+                if achievedGoal != nil {
+                    task!.setValue(modifiedGoal, forKey: "achievedGoal")
+                }
+            } else {
+                task!.setValue(goalCaption, forKey: "captionGoal")
+            }
         }
         if achievedGoal != nil {
             task!.setValue(achievedGoal, forKey: "achievedGoal")
         }
         saveContext()
     }
-    
     func removeFromData(taskCaption: String?, achievedTask: String?, goalCaption: String?, achievedGoal: String?, achievedAt: Date? ) {
         let task = fetchTask(date: today)
         if taskCaption != nil {
@@ -111,10 +126,8 @@ class DataController {
         if achievedGoal != nil {
             task!.setValue(nil, forKey: "achievedGoal")
         }
-        
         saveContext()
     }
-    
     private func saveContext() {
         do {
             try context.save()
@@ -123,7 +136,6 @@ class DataController {
             print("Error saving context \(error)")
         }
     }
-    
     func log(achievedAt: Date?, captionGoal: String?, captionTask: [String]?) {
         var task = fetchTask(date: today)
         if task == nil {
@@ -132,40 +144,70 @@ class DataController {
         createFirstTask(task: task, achievedAt: achievedAt, captionGoal: captionGoal, captionTask: captionTask)
         saveContext()
     }
-    
     func deleteAll() {
-    // Create Fetch Request
-    let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-    
-    // Create Batch Delete Request
-    let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-    
-    do {
-    try context.execute(batchDeleteRequest)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            try context.execute(batchDeleteRequest)
+        }
+        catch {
+        }
+        saveContext()
     }
-    catch {
-    }
-    saveContext()
-    }
-    
-    
     var today: Date {
         return startOfDay(for: Date())
     }
-    
+    var yesterday: Date {
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())
+        return startOfDay(for: yesterday!)
+    }
+    var twoDaysAgo: Date {
+        let twoDaysAgo = Calendar.current.date(byAdding: .day, value: -2, to: Date())
+        return startOfDay(for: twoDaysAgo!)
+    }
+    var threeDaysAgo: Date {
+        let threeDaysAgo = Calendar.current.date(byAdding: .day, value: -3, to: Date())
+        return startOfDay(for: threeDaysAgo!)
+    }
     func startOfDay(for date: Date) -> Date {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone.current
         return calendar.startOfDay(for: date) // eg. yyyy-mm-dd 00:00:00
     }
-    
     func dateCaption(for date: Date) -> String {
         let dateformatter = DateFormatter()
         dateformatter.dateStyle = .short
         dateformatter.timeStyle = .none
         dateformatter.timeZone = TimeZone.current
-        dateformatter.dateFormat = "dd MMMM yyyy"
+        dateformatter.dateFormat = "dd MMM"
         
         return dateformatter.string(from: date)
+    }
+    func logs(from: Date?, to: Date?) -> [NSManagedObject] {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        
+        var predicate: NSPredicate?
+        if let from = from, let to = to {
+            predicate = NSPredicate(format: "achievedAt >= %@ AND achievedAt <= %@", startOfDay(for: from) as NSDate, startOfDay(for: to) as NSDate)
+        }
+        else if let from = from {
+            predicate = NSPredicate(format: "achievedAt >= %@ ", startOfDay(for: from) as NSDate)
+        }
+        else if let to = to {
+            predicate = NSPredicate(format: "achievedAt <= %@ ", startOfDay(for: to) as NSDate)
+        }
+        request.predicate = predicate
+        
+        let sectionSortDescriptor = NSSortDescriptor(key: "achievedAt", ascending: false)
+        request.sortDescriptors = [sectionSortDescriptor]
+        
+        request.returnsObjectsAsFaults = false
+        do {
+            let result = try context.fetch(request) as! [NSManagedObject]
+            return result
+        }
+        catch {
+        }
+        return [NSManagedObject]()
     }
 }

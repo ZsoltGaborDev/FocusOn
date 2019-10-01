@@ -14,20 +14,18 @@ import CoreData
 class ProgressVC: UIViewController {
 
     @IBOutlet weak var timeSegment: UISegmentedControl!
-    @IBOutlet weak var chartView: UIView!
+    @IBOutlet weak var chartView: ChartBaseView!
     
     var chart: Chart!
     let dataController = DataController()
-    var task = Task()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         chartView.insertShadow()
-        
-        let data = self.dataController.fetchTask(date: dataController.today)
-        task = data as! Task
-        progressBar(isGoal: false)
-        
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        self.progressBar(isGoal: false)
     }
     @IBAction func timeSegmentValueChanged(_ sender: Any) {
         if timeSegment.selectedSegmentIndex == 0 {
@@ -39,16 +37,26 @@ class ProgressVC: UIViewController {
         }
     }
     func catchTaskNumber(date: Date) -> Double {
-        if task.achievedTasks != nil {
-            let temp = task.achievedTasks as! [String]
-            return Double(temp.count)
+        if self.dataController.fetchTask(date: date) != nil {
+            let data = self.dataController.fetchTask(date: date) as! Task
+            if data.achievedTasks != nil {
+                let temp = data.achievedTasks as! [String]
+                return Double(temp.count)
+            } else {
+                return 0
+            }
         } else {
             return 0
         }
     }
     func catchGoalNumber(date: Date) -> Double {
-        if task.achievedGoal != nil {
-            return 1
+        if self.dataController.fetchTask(date: date) != nil {
+            let data = self.dataController.fetchTask(date: date) as! Task
+            if data.achievedGoal != nil {
+                return 1
+            } else {
+                return 0
+            }
         } else {
             return 0
         }
@@ -57,17 +65,25 @@ class ProgressVC: UIViewController {
         let chartConfig = BarsChartConfig(
             valsAxisConfig: ChartAxisConfig(from: 0, to: 8, by: 1)
         )
-        let frame = CGRect(x: 10, y: 50, width: chartView.frame.width - 30, height: chartView.frame.height - 60)
+        let frame = CGRect(x: 10, y: 50, width: chartView.frame.size.width - 30 , height: chartView.frame.size.height - 60)
         let yTitle: String
         let bars: [(String, Double)]
         if isGoal {
             yTitle = "Achieved Goal"
             bars = [
-                ("\(dataController.dateCaption(for: dataController.today))", catchGoalNumber(date:dataController.today)  )]
+                ("\(dataController.dateCaption(for: dataController.today))", catchGoalNumber(date: dataController.today)),
+                ("\(dataController.dateCaption(for: dataController.yesterday))", catchGoalNumber(date: dataController.yesterday)),
+                ("\(dataController.dateCaption(for: dataController.twoDaysAgo))", catchGoalNumber(date: dataController.twoDaysAgo)),
+                ("\(dataController.dateCaption(for: dataController.threeDaysAgo))", catchGoalNumber(date: dataController.threeDaysAgo)),
+            ]
         } else {
             yTitle = "Achieved Tasks"
             bars = [
-                ("\(dataController.dateCaption(for: dataController.today))", catchTaskNumber(date: dataController.today)  )]
+                ("\(dataController.dateCaption(for: dataController.today))", catchTaskNumber(date: dataController.today)),
+                ("\(dataController.dateCaption(for: dataController.yesterday))", catchTaskNumber(date: dataController.yesterday)),
+                ("\(dataController.dateCaption(for: dataController.twoDaysAgo))", catchTaskNumber(date: dataController.twoDaysAgo)),
+                ("\(dataController.dateCaption(for: dataController.threeDaysAgo))", catchTaskNumber(date: dataController.threeDaysAgo)),
+            ]
         }
         let chart = BarsChart(
             frame: frame,
@@ -75,11 +91,6 @@ class ProgressVC: UIViewController {
             xTitle: "Date",
             yTitle: yTitle,
             bars: bars,
-//                ("B", 4.5),
-//                ("C", 3),
-//                ("D", 5.4),
-//                ("E", 6.8),
-//                ("F", 0.5)
             color: UIColor.red,
             barWidth: 20
         )

@@ -14,77 +14,53 @@ import Foundation
 class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var viewTitle: UILabel!
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var todayTableView: UITableView!
     
     //variables
     var dataController =  DataController()
-    var completedTaskArray: [String]?
-    var completedGoal: String!
-    var task = Task()
-    var progressText: String?
+    var historyRowNumber: Int!
+    var taskArray = [Task]()
     
     override func viewDidAppear(_ animated: Bool) {
-        getData()
-        tableView.reloadData()
+        todayTableView.reloadData()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.dataSource = self
-        tableView.delegate = self
-    }
-    //MARK: getData
-    func getData() {
-        if self.dataController.fetchTask(date: dataController.today) != nil {
-            task = self.dataController.fetchTask(date: dataController.today) as! Task
-            completedTaskArray = task.achievedTasks as? [String]
-            completedGoal = task.achievedGoal
-        }
+        taskArray = dataController.logs(from: nil, to: dataController.today) as! [Task]
+        todayTableView.dataSource = self
+        todayTableView.delegate = self
     }
     //MARK: tableview delegates
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return taskArray.count
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-        case 0:
-            if let temp = completedTaskArray {
-                return temp.count + 1
-            } else {
-                return 1
-            }
-        default:
+        if taskArray[section].achievedTasks != nil {
+            let data = taskArray[section].achievedTasks as! [String]
+            return data.count + 1
+        } else {
             return 0
         }
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch indexPath.section {
-        case 0:
-            if indexPath.row == 0 {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath) as! HistoryCell
-                if  completedGoal != nil {
-                    cell.taskLabel.text = completedGoal
-                    cell.achievedOnValue.text = getDateOfToday()
-                } else {
-                    cell.taskLabel.text = progressText
-                    cell.achievedOnValue.text = getDateOfToday()
-                }
-                return cell
+        if indexPath.row == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath) as! HistoryCell
+            let test = taskArray[indexPath.section]
+            if  test.achievedGoal != nil {
+                cell.taskLabel.text = test.achievedGoal
+                cell.achievedOnValue.text = dataController.dateCaption(for: test.achievedAt!)
             } else {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "helpHistoryCell", for: indexPath) as! HelpHistoryCell
-                if let temp = completedTaskArray {
-                    cell.taskLabel.text = temp[indexPath.row - 1]
-                    cell.taskNumberLabel.text = "\(indexPath.row)"
-                }
-                return cell
+                cell.achievedOnValue.text = dataController.dateCaption(for: test.achievedAt!)
             }
-        case 1:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath) as! HistoryCell
-            //cell.setCaption("fake data here")
-            //cell.mainView.insertShadow()
             return cell
-        default:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath) as! HistoryCell
-            cell.setCaption("hello")
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "helpHistoryCell", for: indexPath) as! HelpHistoryCell
+            let test = taskArray[indexPath.section]
+            if test.achievedTasks != nil {
+                let temp = test.achievedTasks as! [String]
+                cell.taskLabel.text = temp[indexPath.row - 1]
+                cell.taskNumberLabel.text = "\(indexPath.row)"
+            }
             return cell
         }
     }
@@ -107,19 +83,5 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         default:
             return 0
         }
-    }
-    //dateManagement
-    func getDateOfToday() -> String {
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy"
-        let today = formatter.string(from: date)
-        return today
-    }
-    func formatDate(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy"
-        let resultDate = formatter.string(from: date)
-        return resultDate
     }
 }
