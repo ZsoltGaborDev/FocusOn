@@ -62,7 +62,7 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             if test.achievedTasks != nil {
                 let temp = test.achievedTasks as! [String]
                 cell.taskLabel.text = temp[indexPath.row - 1]
-                cell.taskLabel.textColor = Colors.secondaryColor
+                cell.taskLabel.textColor = Colors.primaryColor
                 cell.taskNumberLabel.text = "\(indexPath.row)"
             }
             return cell
