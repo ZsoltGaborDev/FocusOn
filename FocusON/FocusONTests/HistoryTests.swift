@@ -26,17 +26,11 @@ class HistoryTests: XCTestCase {
         super.tearDown()
     }
     
-    func test_title_is_FocusOn_History() {
+    func testTitleIsFocusOnHistory() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateViewController(withIdentifier: "history") as! HistoryVC
         let _ = controller.view
         XCTAssertEqual("FocusOn History", controller.viewTitle!.text!)
-    }
-    func test_title_is_FocusOn_Progress() {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let controller = storyboard.instantiateViewController(withIdentifier: "progress") as! ProgressVC
-        let _ = controller.view
-        XCTAssertEqual("FocusOn Progress", controller.pageTitleLabel!.text!)
     }
     func testHasATableView() {
         XCTAssertNotNil(controller.tableView)

@@ -121,7 +121,7 @@ class DataController {
             task!.setValue(taskStringArray, forKey: "achievedTasks")
         }
         if goalCaption != nil {
-            task!.setValue(goalCaption, forKey: "captionGoal")
+            task!.setValue(nil, forKey: "captionGoal")
         }
         if achievedGoal != nil {
             task!.setValue(nil, forKey: "achievedGoal")

@@ -25,13 +25,13 @@ class TodayTests: XCTestCase {
         super.tearDown()
     }
     
-    func test_title_is_FocusON_Today() {
+    func testTitleIsFocusONToday() {
         XCTAssertEqual("FocusOn Today", controller.viewTitleLabel!.text!)
     }
-    func test_goal_placeholder_is_your_goal_of_today_here() {
+    func testGoalPlaceholderIsYourGoalOfTodayHere() {
         XCTAssertEqual("your goal of today here...", controller.goalLabel!.text!)
     }
-    func test_update_progress() {
+    func testUpdateProgress() {
         //no task
         controller.captionTaskArray = []
         controller.completedTaskArray = []

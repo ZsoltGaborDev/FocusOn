@@ -8,7 +8,6 @@
 
 import XCTest
 @testable import FocusON
-@testable import SwiftCharts
 
 class ProgressTests: XCTestCase {
 
