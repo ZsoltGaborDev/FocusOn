@@ -287,8 +287,8 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GQ9-rj-Nkr">
                                         <rect key="frame" x="0.0" y="50" width="414" height="50"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Focus History" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6ns-ti-xZ7">
-                                                <rect key="frame" x="108" y="7" width="198" height="36"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="FocusOn History" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6ns-ti-xZ7">
+                                                <rect key="frame" x="87.5" y="7" width="239" height="36"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="30"/>
                                                 <color key="textColor" red="0.064886145290000002" green="0.29319062829999998" blue="0.3710364699" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -502,7 +502,7 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="History" image="historyIcon" selectedImage="historyIcon" id="6lP-ts-2mC"/>
                     <connections>
-                        <outlet property="todayTableView" destination="yfX-T0-Aig" id="PKX-bw-o1L"/>
+                        <outlet property="tableView" destination="yfX-T0-Aig" id="PKX-bw-o1L"/>
                         <outlet property="viewTitle" destination="6ns-ti-xZ7" id="1XN-cW-tsc"/>
                     </connections>
                 </viewController>
@@ -513,7 +513,7 @@
         <!--Progress-->
         <scene sceneID="B4X-h4-Fg1">
             <objects>
-                <viewController id="hoZ-cr-duv" customClass="ProgressVC" customModule="FocusON" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="progress" useStoryboardIdentifierAsRestorationIdentifier="YES" id="hoZ-cr-duv" customClass="ProgressVC" customModule="FocusON" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="p30-cH-2fp">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -524,8 +524,8 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AH8-76-Jxr">
                                         <rect key="frame" x="0.0" y="50" width="414" height="50"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Focus Progress" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yes-vg-uMX">
-                                                <rect key="frame" x="95" y="7" width="224" height="36"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="FocusOn Progress" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yes-vg-uMX">
+                                                <rect key="frame" x="74.5" y="7" width="265.5" height="36"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="30"/>
                                                 <color key="textColor" red="0.064886145290000002" green="0.29319062829999998" blue="0.3710364699" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -581,6 +581,7 @@
                     <tabBarItem key="tabBarItem" title="Progress" image="progressIcon" selectedImage="progressIcon" id="ezx-Kz-xRD"/>
                     <connections>
                         <outlet property="chartView" destination="ZJW-E5-4AZ" id="K0R-6M-TjE"/>
+                        <outlet property="pageTitleLabel" destination="yes-vg-uMX" id="pow-cu-ENC"/>
                         <outlet property="timeSegment" destination="vvx-lw-5gr" id="MgF-oU-10n"/>
                     </connections>
                 </viewController>

@@ -15,6 +15,7 @@ class ProgressVC: UIViewController {
 
     @IBOutlet weak var timeSegment: UISegmentedControl!
     @IBOutlet weak var chartView: ChartBaseView!
+    @IBOutlet weak var pageTitleLabel: UILabel!
     
     var chart: Chart!
     let dataController = DataController()

@@ -14,7 +14,7 @@ import Foundation
 class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var viewTitle: UILabel!
-    @IBOutlet weak var todayTableView: UITableView!
+    @IBOutlet weak var tableView: UITableView!
     
     //variables
     var dataController =  DataController()
@@ -22,13 +22,13 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     var taskArray = [Task]()
     
     override func viewDidAppear(_ animated: Bool) {
-        todayTableView.reloadData()
+        tableView.reloadData()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         taskArray = dataController.logs(from: nil, to: dataController.today) as! [Task]
-        todayTableView.dataSource = self
-        todayTableView.delegate = self
+        tableView.dataSource = self
+        tableView.delegate = self
     }
     //MARK: tableview delegates
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -48,8 +48,11 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             let test = taskArray[indexPath.section]
             if  test.achievedGoal != nil {
                 cell.taskLabel.text = test.achievedGoal
+                cell.taskLabel.textColor = Colors.secondaryColor
                 cell.achievedOnValue.text = dataController.dateCaption(for: test.achievedAt!)
             } else {
+                cell.taskLabel.text = "goal not achieved yet..."
+                cell.taskLabel.textColor = UIColor.red
                 cell.achievedOnValue.text = dataController.dateCaption(for: test.achievedAt!)
             }
             return cell
@@ -59,6 +62,7 @@ class HistoryVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             if test.achievedTasks != nil {
                 let temp = test.achievedTasks as! [String]
                 cell.taskLabel.text = temp[indexPath.row - 1]
+                cell.taskLabel.textColor = Colors.secondaryColor
                 cell.taskNumberLabel.text = "\(indexPath.row)"
             }
             return cell
