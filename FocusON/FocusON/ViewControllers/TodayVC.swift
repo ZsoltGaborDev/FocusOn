@@ -103,7 +103,7 @@ class TodayVC: UIViewController, UITableViewDataSource, UITableViewDelegate, Tas
         return "Taks to achieve your goal:"
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 40
+        return 30
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let task = captionTaskArray[indexPath.row]
